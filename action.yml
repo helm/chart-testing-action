@@ -2,8 +2,8 @@ name: "chart-testing action"
 description: "Run the chart-testing tool"
 author: "unguiculus"
 inputs:
-  version:
-    description: "The chart-testing version to use (default: v2.4.0)"
+  image:
+    description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)"
   configFile:
     description: "The path to the config file"
   command:

@@ -1,19 +1,19 @@
 import * as core from '@actions/core';
 import {ChartTesting} from "./ct";
 
-const VersionInput = "version";
+const ImageInput = "image";
 const ConfigFileInput = "configFile";
 const CommandInput = "command";
 const InstallLocalPathProvisionerInput = "useLocalPathProvisioner";
 const KubeconfigFileInput = "kubeconfigFile";
 
 export function createChartTesting(): ChartTesting {
-    const version = core.getInput(VersionInput);
+    const image = core.getInput(ImageInput);
     const configFile = core.getInput(ConfigFileInput);
     const command = core.getInput(CommandInput, {required: true});
     const kubeconfigFile = core.getInput(KubeconfigFileInput, {required: true});
 
-    return new ChartTesting(version, configFile, command, kubeconfigFile)
+    return new ChartTesting(image, configFile, command, kubeconfigFile)
 }
 
 async function run() {

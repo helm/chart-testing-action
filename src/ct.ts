@@ -1,13 +1,13 @@
 import * as exec from '@actions/exec';
 
-const defaultChartTestingVersion = "v2.4.0";
+const defaultChartTestingImage = "quay.io/helmpack/chart-testing:v2.4.0";
 
 export class ChartTesting {
     private containerRunning = false;
 
-    constructor(readonly version: string, readonly configFile: string, readonly command: string, readonly kubeconfigFile: string) {
-        if (version === "") {
-            this.version = defaultChartTestingVersion;
+    constructor(readonly image: string, readonly configFile: string, readonly command: string, readonly kubeconfigFile: string) {
+        if (image === "") {
+            this.image = defaultChartTestingImage;
         }
         if (command === "") {
             throw new Error("command is required")
@@ -17,11 +17,10 @@ export class ChartTesting {
         }
     }
 
-    private async startContainer(version: string, configFile: string, kubeconfigFile: string) {
+    private async startContainer() {
         console.log("running ct...");
 
-        const ctImage = `quay.io/helmpack/chart-testing:${version}`;
-        let args: string[] = ["pull", ctImage];
+        let args: string[] = ["pull", this.image];
 
         await exec.exec("docker", args);
 
@@ -33,10 +32,10 @@ export class ChartTesting {
             "--detach",
             "--network=host",
             "--name=ct",
-            `--volume=${workspace}/${configFile}:/etc/ct/ct.yaml`,
+            `--volume=${workspace}/${this.configFile}:/etc/ct/ct.yaml`,
             `--volume=${workspace}:/workdir`,
             "--workdir=/workdir",
-            ctImage,
+            this.image,
             "cat"
         ];
 
@@ -45,12 +44,12 @@ export class ChartTesting {
         this.containerRunning = true;
 
         await this.runInContainer("mkdir", "-p", "/root/.kube");
-        await exec.exec("docker", ["cp", kubeconfigFile, "ct:/root/.kube/config"]);
+        await exec.exec("docker", ["cp", this.kubeconfigFile, "ct:/root/.kube/config"]);
     }
 
     private async runInContainer(...procArgs: string[]) {
         if (!this.containerRunning) {
-            await this.startContainer(this.version, this.configFile, this.kubeconfigFile);
+            await this.startContainer();
         }
         let args = ["exec", "--interactive", "ct"];
         args.push(...procArgs);
