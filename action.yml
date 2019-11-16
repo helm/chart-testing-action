@@ -4,18 +4,15 @@ author: "unguiculus"
 inputs:
   image:
     description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)"
-  configFile:
+  config:
     description: "The path to the config file"
   command:
     description: "The chart-testing command to run"
     required: true
   kubeconfig:
     description: "The path to the kube config file"
-    required: true
-  useLocalPathProvisioner:
-    description: |
-      If true, Rancher's local path provisioner is installed which supports
-      dynamic volume provisioning on multi-node clusters
+  context:
+    description: "The kubeconfig context to use"
 runs:
   using: "node12"
   main: "lib/main.js"

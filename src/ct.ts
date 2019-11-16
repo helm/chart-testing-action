@@ -1,24 +1,41 @@
+// Copyright The Helm Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as exec from '@actions/exec';
+import * as path from "path";
 
 const defaultChartTestingImage = "quay.io/helmpack/chart-testing:v2.4.0";
+const defaultKubeconfig = path.join(process.env["HOME"] || "", ".kube", "config");
 
 export class ChartTesting {
     private containerRunning = false;
 
-    constructor(readonly image: string, readonly configFile: string, readonly command: string, readonly kubeconfigFile: string) {
+    constructor(private readonly image: string, private readonly config: string, private readonly command: string,
+                private readonly kubeconfig: string, private readonly context: string) {
         if (image === "") {
             this.image = defaultChartTestingImage;
         }
         if (command === "") {
             throw new Error("command is required")
         }
-        if (kubeconfigFile === "") {
-            throw new Error("kubeconfigFile is required")
+        if (kubeconfig === "") {
+            this.kubeconfig = defaultKubeconfig
         }
     }
 
     private async startContainer() {
-        console.log("running ct...");
+        console.log("Running ct...");
 
         let args: string[] = ["pull", this.image];
 
@@ -32,7 +49,7 @@ export class ChartTesting {
             "--detach",
             "--network=host",
             "--name=ct",
-            `--volume=${workspace}/${this.configFile}:/etc/ct/ct.yaml`,
+            `--volume=${workspace}/${this.config}:/etc/ct/ct.yaml`,
             `--volume=${workspace}:/workdir`,
             "--workdir=/workdir",
             this.image,
@@ -44,29 +61,23 @@ export class ChartTesting {
         this.containerRunning = true;
 
         await this.runInContainer("mkdir", "-p", "/root/.kube");
-        await exec.exec("docker", ["cp", this.kubeconfigFile, "ct:/root/.kube/config"]);
+        await exec.exec("docker", ["cp", this.kubeconfig, "ct:/root/.kube/config"]);
+
+        if (this.context !== "") {
+            await exec.exec("kubectl", ["config", "use-context", this.context])
+        }
     }
 
-    private async runInContainer(...procArgs: string[]) {
+    async execute() {
+        await this.runInContainer("ct", this.command)
+    }
+
+    private async runInContainer(...args: string[]) {
         if (!this.containerRunning) {
             await this.startContainer();
         }
-        let args = ["exec", "--interactive", "ct"];
-        args.push(...procArgs);
-        await exec.exec("docker", args);
-    }
-
-    async verifyCluster() {
-        await this.runInContainer("kubectl", "cluster-info");
-        await this.runInContainer("kubectl", "get", "nodes");
-    }
-
-    async installLocalPathProvisioner() {
-        await this.runInContainer("kubectl", "delete", "storageclass", "standard");
-        await this.runInContainer("kubectl", "apply", "-f", "https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml");
-    }
-
-    async runChartTesting() {
-        await this.runInContainer("ct", this.command)
+        let procArgs = ["exec", "--interactive", "ct"];
+        procArgs.push(...args);
+        await exec.exec("docker", procArgs);
     }
 }
