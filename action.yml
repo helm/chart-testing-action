@@ -1,0 +1,21 @@
+name: "chart-testing action"
+description: "Run the chart-testing tool"
+author: "unguiculus"
+inputs:
+  version:
+    description: "The chart-testing version to use (default: v2.4.0)"
+  configFile:
+    description: "The path to the config file"
+  command:
+    description: "The chart-testing command to run"
+    required: true
+  kubeconfig:
+    description: "The path to the kube config file"
+    required: true
+  useLocalPathProvisioner:
+    description: |
+      If true, Rancher's local path provisioner is installed which supports
+      dynamic volume provisioning on multi-node clusters
+runs:
+  using: "node12"
+  main: "lib/main.js"
