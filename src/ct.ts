@@ -34,6 +34,10 @@ export class ChartTesting {
         }
     }
 
+    async execute() {
+        await this.runInContainer("ct", this.command)
+    }
+
     private async startContainer() {
         console.log("Running ct...");
 
@@ -66,10 +70,6 @@ export class ChartTesting {
         if (this.context !== "") {
             await exec.exec("kubectl", ["config", "use-context", this.context])
         }
-    }
-
-    async execute() {
-        await this.runInContainer("ct", this.command)
     }
 
     private async runInContainer(...args: string[]) {
