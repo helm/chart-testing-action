@@ -1,7 +1,7 @@
 {
   "name": "chart-testing",
   "version": "0.0.0",
-  "description": "kind GitHub action",
+  "description": "chart-testing GitHub action",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc"
