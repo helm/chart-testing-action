@@ -35,7 +35,11 @@ export class ChartTesting {
     }
 
     async execute() {
-        await this.runInContainer("ct", this.command)
+        try {
+            await this.runInContainer("ct", this.command)
+        } finally {
+            await this.killContainer();
+        }
     }
 
     private async startContainer() {
@@ -53,12 +57,13 @@ export class ChartTesting {
             "--detach",
             "--network=host",
             "--name=ct",
-            `--volume=${workspace}/${this.config}:/etc/ct/ct.yaml`,
             `--volume=${workspace}:/workdir`,
-            "--workdir=/workdir",
-            this.image,
-            "cat"
+            "--workdir=/workdir"
         ];
+        if (this.config !== "") {
+            args = args.concat(`--volume=${workspace}/${this.config}:/etc/ct/ct.yaml`)
+        }
+        args = args.concat(this.image, "cat");
 
         await exec.exec("docker", args);
 
@@ -70,6 +75,14 @@ export class ChartTesting {
         if (this.context !== "") {
             await exec.exec("kubectl", ["config", "use-context", this.context])
         }
+
+        await exec.exec("sh", ["-c", "kubectl --namespace=kube-system create serviceaccount tiller --dry-run --output=yaml | kubectl apply -f -"]);
+        await exec.exec("sh", ["-c", "kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller --dry-run --output=yaml | kubectl apply -f -"]);
+        await exec.exec("helm", ["init", "--service-account=tiller", "--upgrade", "--wait"]);
+    }
+
+    private async killContainer() {
+        await exec.exec("docker", ["kill", "ct"])
     }
 
     private async runInContainer(...args: string[]) {

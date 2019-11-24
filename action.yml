@@ -1,11 +1,14 @@
-name: "chart-testing action"
+name: "GitHub Action for Helm Chart Testing"
 description: "Run the chart-testing tool"
-author: "unguiculus"
+author: "The Helm authors"
+branding:
+  color: blue
+  icon: check-circle
 inputs:
   image:
     description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)"
   config:
-    description: "The path to the config file"
+    description: "The path to the chart-testing config file"
   command:
     description: "The chart-testing command to run"
     required: true
