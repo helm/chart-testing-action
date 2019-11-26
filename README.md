@@ -6,8 +6,8 @@ A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](htt
 
 ### Pre-requisites
 
-1. A GitHub repo containing a directory with your Helm charts
-1. A [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo
+1. A GitHub repo containing a directory with your Helm charts (eg: `/charts`)
+1. A [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
 1. Create a workflow `.yml` file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
 
 ### Inputs
@@ -24,7 +24,7 @@ For more information on these inputs, see the [API Documentation](https://develo
 Create a workflow (eg: .github/workflows/chart-testing.yml see Creating a Workflow file):
 
 ```yaml
-name: chart actions
+name: Lint and Test Charts
 
 on:
   pull_request:
@@ -43,7 +43,8 @@ jobs:
       - name: Run chart-testing
         uses: helm/chart-testing-action@v1
         with:
-          command: version
+          command: lint-and-install
+          config: ct.yaml
 ```
 
 This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every pull request and push.
