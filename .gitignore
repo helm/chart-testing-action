@@ -1,5 +1,4 @@
 .idea
-*.iml
-
-logs/
-*.log*
+.project
+.settings
+.vscode
