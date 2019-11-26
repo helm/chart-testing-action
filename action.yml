@@ -8,14 +8,12 @@ inputs:
   image:
     description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)"
   config:
-    description: "The path to the chart-testing config file"
+    description: "The relative path to the chart-testing config file"
   command:
     description: "The chart-testing command to run"
     required: true
   kubeconfig:
     description: "The path to the kube config file"
-  context:
-    description: "The kubeconfig context to use"
 runs:
   using: "node12"
   main: "lib/main.js"
