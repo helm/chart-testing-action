@@ -18,7 +18,6 @@ For more information on these inputs, see the [API Documentation](https://develo
 - `config`: The path to the config file
 - `command`: The chart-testing command to run
 - `kubeconfig`: The path to the kube config file
-- `context`: The kubeconfig context to use
 
 ### Example workflow
 
