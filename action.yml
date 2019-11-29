@@ -16,4 +16,4 @@ inputs:
     description: "The path to the kube config file"
 runs:
   using: "node12"
-  main: "lib/main.js"
+  main: "main.js"
