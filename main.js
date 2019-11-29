@@ -3,7 +3,7 @@ const path = require("path");
 
 const main = async () => {
     await new Promise((resolve, reject) => {
-        const proc = spawn('bash', ['-c', path.join(__dirname, 'main.sh')], {stdio: 'inherit'})
+        const proc = spawn('bash', [path.join(__dirname, 'main.sh')], {stdio: 'inherit'})
         proc.on('close', resolve)
         proc.on('error', reject)
     })

@@ -5,7 +5,6 @@ set -o nounset
 set -o pipefail
 
 DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v2.4.0
-readonly DEFAULT_IMAGE
 
 show_help() {
 cat << EOF
