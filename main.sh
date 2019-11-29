@@ -23,3 +23,5 @@ main() {
 
     "$SCRIPT_DIR/ct.sh" "${args[@]}"
 }
+
+main
