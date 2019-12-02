@@ -24,6 +24,30 @@ main() {
     local command=
     local kubeconfig="$HOME/.kube/config"
 
+    parse_command_line "$@"
+
+    if [[ -z "$command" ]]; then
+        echo "ERROR: '-c|--command' is required." >&2
+        show_help
+        exit 1
+    fi
+
+    run_ct_container
+    trap cleanup EXIT
+
+    local changed
+    changed=$(docker_exec ct list-changed)
+    if [[ -z "$changed" ]]; then
+        echo 'No chart changes detected.'
+        return
+    fi
+
+    configure_kube
+    install_tiller
+    run_ct
+}
+
+parse_command_line() {
     while :; do
         case "${1:-}" in
             -h|--help)
@@ -77,31 +101,9 @@ main() {
 
         shift
     done
-
-    if [[ -z "$command" ]]; then
-        echo "ERROR: '-c|--command' is required." >&2
-        show_help
-        exit 1
-    fi
-
-    run_ct_container "$image"
-    trap cleanup EXIT
-
-    changed=$(docker_exec ct list-changed)
-    if [[ -z "$changed" ]]; then
-        echo 'No chart changes detected.'
-        return
-    fi
-
-    configure_kube "$kubeconfig"
-    install_tiller
-    run_ct "$command"
 }
 
 run_ct_container() {
-    local image="$1"
-    local config="${2:-}"
-
     echo 'Running ct container...'
     local args=(run --rm --interactive --detach --network host --name ct "--volume=$(pwd):/workdir" "--workdir=/workdir")
 
@@ -116,7 +118,6 @@ run_ct_container() {
 }
 
 configure_kube() {
-    local kubeconfig="$1"
     docker_exec sh -c 'mkdir -p /root/.kube'
     docker cp "$kubeconfig" ct:/root/.kube/config
 }
@@ -132,7 +133,6 @@ install_tiller() {
 }
 
 run_ct() {
-    local command="$1"
     echo "Running 'ct $command'..."
     docker_exec ct "$command"
     echo
