@@ -51,4 +51,4 @@ This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub 
 
 ## Code of conduct
 
-Participation in the Helm community is governed by the [Code of Conduct](code-of-conduct.md).
+Participation in the Helm community is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
