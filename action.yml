@@ -3,7 +3,7 @@ description: "Run the Helm chart-testing tool"
 author: "The Helm authors"
 branding:
   color: blue
-  icon: check-circle
+  icon: anchor
 inputs:
   image:
     description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)"
