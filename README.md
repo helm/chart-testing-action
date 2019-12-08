@@ -51,7 +51,7 @@ jobs:
           command: install
 ```
 
-This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every pull request and push.
+This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every Pull Request.
 
 ## Code of conduct
 
