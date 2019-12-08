@@ -1,5 +1,5 @@
-name: "GitHub Action for Helm Chart Testing"
-description: "Run the chart-testing tool"
+name: "Helm Chart Testing"
+description: "Run the Helm chart-testing tool"
 author: "The Helm authors"
 branding:
   color: blue
