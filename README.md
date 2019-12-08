@@ -7,12 +7,12 @@ A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](htt
 ### Pre-requisites
 
 1. A GitHub repo containing a directory with your Helm charts (eg: `/charts`)
-1. A [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
-1. Create a workflow `.yml` file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
+1. Optional: if you want to override the defaults, a [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
+1. A workflow YAML file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
 
 ### Inputs
 
-For more information on these inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
+For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
 - `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v2.4.0`)
 - `config`: The path to the config file
@@ -21,33 +21,37 @@ For more information on these inputs, see the [API Documentation](https://develo
 
 ### Example workflow
 
-Create a workflow (eg: .github/workflows/chart-testing.yml see Creating a Workflow file):
+Create a workflow (eg: `.github/workflows/lint-test.yaml`):
 
 ```yaml
 name: Lint and Test Charts
 
-on:
-  pull_request:
-  push:
+on: pull_request
 
 jobs:
-  test:
+  lint-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Create cluster
-        uses: helm/kind-action@v1
+
+      - name: Create kind cluster
+        uses: helm/kind-action@master
         with:
           installLocalPathProvisioner: true
-      - name: Run chart-testing
-        uses: helm/chart-testing-action@v1
+
+      - name: Run chart-testing (lint)
+        uses: helm/chart-testing-action@master
         with:
-          command: lint-and-install
-          config: ct.yaml
+          command: lint
+
+      - name: Run chart-testing (install)
+        uses: helm/chart-testing-action@master
+        with:
+          command: install
 ```
 
-This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every pull request and push.
+This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every Pull Request.
 
 ## Code of conduct
 
