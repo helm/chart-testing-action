@@ -1,4 +1,4 @@
-# Chart testing action
+# *chart-testing* Action
 
 A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](https://github.com/helm/chart-testing) CLI tool.
 
@@ -8,7 +8,8 @@ A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](htt
 
 1. A GitHub repo containing a directory with your Helm charts (eg: `/charts`)
 1. Optional: if you want to override the defaults, a [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
-1. A workflow YAML file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
+1. A workflow YAML file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below.
+  For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
 
 ### Inputs
 
@@ -19,7 +20,7 @@ For more information on inputs, see the [API Documentation](https://developer.gi
 - `command`: The chart-testing command to run
 - `kubeconfig`: The path to the kube config file
 
-### Example workflow
+### Example Workflow
 
 Create a workflow (eg: `.github/workflows/lint-test.yaml`):
 
