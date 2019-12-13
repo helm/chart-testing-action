@@ -42,7 +42,7 @@ main() {
         return
     fi
 
-    if [ "$command" == "lint" ]; then
+    if [[ "$command" == "lint" ]]; then
         helm_init
     else
         configure_kube
