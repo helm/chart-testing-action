@@ -42,8 +42,13 @@ main() {
         return
     fi
 
-    configure_kube
-    install_tiller
+    if [[ "$command" == "lint" ]]; then
+        helm_init
+    else
+        configure_kube
+        install_tiller
+    fi
+
     run_ct
 }
 
@@ -129,6 +134,11 @@ install_tiller() {
     docker_exec sh -c 'kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin \
         --serviceaccount=kube-system:tiller --save-config --dry-run --output=yaml | kubectl apply -f -'
     docker_exec helm init --service-account tiller --upgrade --wait
+    echo
+}
+
+helm_init() {
+    docker_exec helm init --client-only
     echo
 }
 
