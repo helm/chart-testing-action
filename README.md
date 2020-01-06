@@ -39,7 +39,7 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@master
         with:
-          installLocalPathProvisioner: true
+          install_local_path_provisioner: true
 
       - name: Run chart-testing (lint)
         uses: helm/chart-testing-action@master
