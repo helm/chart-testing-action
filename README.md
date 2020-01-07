@@ -38,23 +38,23 @@ jobs:
 
       - name: Run chart-testing (list-changed)
         id: list_changed
-        uses: helm/chart-testing-action@master
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
           command: list-changed
 
       - name: Create kind cluster
-        uses: helm/kind-action@master
+        uses: helm/kind-action@1.0.0-alpha.3
         with:
           install_local_path_provisioner: true
         if: steps.list_changed.outputs.changed == 'true'
 
       - name: Run chart-testing (lint)
-        uses: helm/chart-testing-action@master
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
           command: lint
 
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@master
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
           command: install
 ```
