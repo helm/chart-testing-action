@@ -49,6 +49,10 @@ main() {
         install_tiller
     fi
 
+    if [[ "$command" == "list-changed" ]]; then
+        echo "::set-output name=changed::true"
+    fi
+
     run_ct
 }
 

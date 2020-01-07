@@ -36,10 +36,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: Run chart-testing (list-changed)
+        id: list_changed
+        uses: helm/chart-testing-action@master
+        with:
+          command: list-changed
+
       - name: Create kind cluster
         uses: helm/kind-action@master
         with:
           install_local_path_provisioner: true
+        if: steps.list_changed.outputs.changed == 'true'
 
       - name: Run chart-testing (lint)
         uses: helm/chart-testing-action@master
