@@ -39,6 +39,7 @@ main() {
     changed=$(docker_exec ct list-changed)
     if [[ -z "$changed" ]]; then
         echo 'No chart changes detected.'
+        echo "::set-output name=changed::false"
         return
     fi
 
