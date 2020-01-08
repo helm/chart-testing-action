@@ -39,11 +39,17 @@ main() {
     changed=$(docker_exec ct list-changed)
     if [[ -z "$changed" ]]; then
         echo 'No chart changes detected.'
+        echo "::set-output name=changed::false"
         return
     fi
 
-    if [[ "$command" == "lint" ]]; then
+    # Convenience output for other actions to make use of ct config to check if
+    # charts changed.
+    echo "::set-output name=changed::true"
+
+    if [[ "$command" == "lint" ]] || [[ "$command" == "list-changed" ]]; then
         helm_init
+    # All other ct commands require a cluster to be created in a previous step.
     else
         configure_kube
         install_tiller

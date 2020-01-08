@@ -36,18 +36,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Create kind cluster
-        uses: helm/kind-action@master
-        with:
-          install_local_path_provisioner: true
-
       - name: Run chart-testing (lint)
-        uses: helm/chart-testing-action@master
+        id: lint
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
           command: lint
 
+      - name: Create kind cluster
+        uses: helm/kind-action@1.0.0-alpha.3
+        with:
+          install_local_path_provisioner: true
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'
+
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@master
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
           command: install
 ```
