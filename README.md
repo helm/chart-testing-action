@@ -2,6 +2,9 @@
 
 A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](https://github.com/helm/chart-testing) CLI tool.
 
+`master` supports Helm 3 only.
+Support for Helm 2 is on branch `dev-v2`.
+
 ## Usage
 
 ### Pre-requisites
