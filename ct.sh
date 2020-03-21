@@ -11,7 +11,7 @@ cat << EOF
 Usage: $(basename "$0") <options>
 
     -h, --help          Display help
-    -i, --image         The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v2.4.0)
+    -i, --image         The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0-beta.2)
     -c, --command       The chart-testing command to run
         --config        The path to the chart-testing config file
         --kubeconfig    The path to the kube config file
