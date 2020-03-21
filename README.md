@@ -18,7 +18,7 @@ Support for Helm 2 is on branch `dev-v2`.
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v2.4.0`)
+- `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v3.0.0-beta.2`)
 - `config`: The path to the config file
 - `command`: The chart-testing command to run
 - `kubeconfig`: The path to the kube config file
@@ -41,19 +41,17 @@ jobs:
 
       - name: Run chart-testing (lint)
         id: lint
-        uses: helm/chart-testing-action@v1.0.0-alpha.3
+        uses: helm/chart-testing-action@v1.0.0-rc.1
         with:
           command: lint
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-alpha.3
-        with:
-          install_local_path_provisioner: true
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.0.0-alpha.3
+        uses: helm/chart-testing-action@v1.0.0-rc.1
         with:
           command: install
 ```
