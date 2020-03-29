@@ -21,7 +21,7 @@ main() {
         args+=(--kubeconfig "${INPUT_KUBECONFIG}")
     fi
 
-    "$SCRIPT_DIR/ct.sh" "${args[@]}"
+    "$SCRIPT_DIR/ct.sh" ${args[@]}
 }
 
 main
