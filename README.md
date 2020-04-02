@@ -15,7 +15,7 @@ A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](htt
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v2.4.0`)
+- `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v2.4.1`)
 - `config`: The path to the config file
 - `command`: The chart-testing command to run
 - `kubeconfig`: The path to the kube config file
