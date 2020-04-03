@@ -6,7 +6,7 @@ branding:
   icon: anchor
 inputs:
   image:
-    description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0-beta.2)"
+    description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0-rc.1)"
   config:
     description: "The relative path to the chart-testing config file"
   command:
