@@ -9,8 +9,8 @@ Support for Helm 2 is on branch `dev-v2`.
 
 ### Pre-requisites
 
-1. A GitHub repo containing a directory with your Helm charts (eg: `/charts`)
-1. Optional: if you want to override the defaults, a [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
+1. A GitHub repo containing a directory with your Helm charts (e.g.: `/charts`)
+1. Optional: if you want to override the defaults, a [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (e.g. `/ct.yaml`)
 1. A workflow YAML file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below.
   For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
 
@@ -25,7 +25,7 @@ For more information on inputs, see the [API Documentation](https://developer.gi
 
 ### Example Workflow
 
-Create a workflow (eg: `.github/workflows/lint-test.yaml`):
+Create a workflow (e.g.: `.github/workflows/lint-test.yaml`):
 
 ```yaml
 name: Lint and Test Charts
