@@ -36,11 +36,10 @@ jobs:
   lint-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout with full history
         uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
+        run: |
+          git fetch --prune --unshallow
 
       - name: Run chart-testing (lint)
         id: lint
