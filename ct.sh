@@ -4,14 +4,14 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v3.0.0-rc.1
+DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v3.0.0
 
 show_help() {
 cat << EOF
 Usage: $(basename "$0") <options>
 
     -h, --help          Display help
-    -i, --image         The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0-rc.1)
+    -i, --image         The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0)
     -c, --command       The chart-testing command to run
         --config        The path to the chart-testing config file
         --kubeconfig    The path to the kube config file
