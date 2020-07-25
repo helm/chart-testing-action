@@ -44,7 +44,7 @@ jobs:
 
       - name: Run chart-testing (lint)
         id: lint
-        uses: helm/chart-testing-action@v1.0.0-rc.2
+        uses: helm/chart-testing-action@v1.0.0
         with:
           command: lint
 
@@ -54,7 +54,7 @@ jobs:
         if: steps.lint.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.0.0-rc.2
+        uses: helm/chart-testing-action@v1.0.0
         with:
           command: install
 ```
