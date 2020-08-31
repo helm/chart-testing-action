@@ -126,8 +126,9 @@ run_ct_container() {
 }
 
 configure_kube() {
-    docker_exec sh -c 'mkdir -p /root/.kube'
-    docker cp "$kubeconfig" ct:/root/.kube/config
+    # need to copy full .kube dir for certs, etc:
+    local confdir=$(dirname $kubeconfig)
+    docker cp "$confdir" ct:/root/.kube
 }
 
 run_ct() {
