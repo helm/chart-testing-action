@@ -13,7 +13,7 @@ inputs:
     description: "The chart-testing command to run"
     required: true
   kubeconfig:
-    description: "The path to the kube config file"
+    description: "The path to the kube config directory"
 outputs:
   changed:
     description: "Whether or not charts have changed (true/false)"

@@ -14,7 +14,7 @@ Usage: $(basename "$0") <options>
     -i, --image         The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.0.0)
     -c, --command       The chart-testing command to run
         --config        The path to the chart-testing config file
-        --kubeconfig    The path to the kube config file
+        --kubeconfig    The path to the kube config directory
 EOF
 }
 
@@ -22,7 +22,7 @@ main() {
     local image="$DEFAULT_IMAGE"
     local config=
     local command=
-    local kubeconfig="$HOME/.kube/config"
+    local kubeconfig="$HOME/.kube"
 
     parse_command_line "$@"
 
@@ -126,8 +126,7 @@ run_ct_container() {
 }
 
 configure_kube() {
-    docker_exec sh -c 'mkdir -p /root/.kube'
-    docker cp "$kubeconfig" ct:/root/.kube/config
+    docker cp "$kubeconfig" ct:/root/.kube
 }
 
 run_ct() {
