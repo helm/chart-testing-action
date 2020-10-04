@@ -22,6 +22,7 @@ For more information on inputs, see the [API Documentation](https://developer.gi
 - `config`: The path to the config file
 - `command`: The chart-testing command to run
 - `kubeconfig`: The path to the kube config file
+- `dockerArgs`: Additional arguments which should be passed to docker when starting the ct container
 
 ### Example Workflow
 

@@ -15,6 +15,7 @@ Usage: $(basename "$0") <options>
     -c, --command       The chart-testing command to run
         --config        The path to the chart-testing config file
         --kubeconfig    The path to the kube config file
+        --docker-args   Additional arguments which should be passed to docker when starting the ct container
 EOF
 }
 
@@ -23,6 +24,7 @@ main() {
     local config=
     local command=
     local kubeconfig="$HOME/.kube/config"
+    local dockerArgs=()
 
     parse_command_line "$@"
 
@@ -102,6 +104,16 @@ parse_command_line() {
                     exit 1
                 fi
                 ;;
+            --docker-args)
+                if [[ -n "${2:-}" ]]; then
+                    IFS=" " read -r -a dockerArgs <<< "$2"
+                    shift
+                else
+                    echo "ERROR: '--docker-args' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
+                ;;
             *)
                 break
                 ;;
@@ -119,8 +131,11 @@ run_ct_container() {
         args+=("--volume=$(pwd)/$config:/etc/ct/ct.yaml" )
     fi
 
+    args=("${args[@]}" "${dockerArgs[@]}")
+
     args+=("$image" cat)
 
+    echo docker "${args[@]}"
     docker "${args[@]}"
     echo
 }
@@ -145,6 +160,7 @@ cleanup() {
 }
 
 docker_exec() {
+    echo docker exec --interactive ct "$@"
     docker exec --interactive ct "$@"
 }
 

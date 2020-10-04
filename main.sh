@@ -21,6 +21,10 @@ main() {
         args+=(--kubeconfig "${INPUT_KUBECONFIG}")
     fi
 
+    if [[ -n "${INPUT_DOCKERARGS:-}" ]]; then
+        args+=(--docker-args "${INPUT_DOCKERARGS}")
+    fi
+
     "$SCRIPT_DIR/ct.sh" "${args[@]}"
 }
 
