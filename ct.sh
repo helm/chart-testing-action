@@ -24,7 +24,7 @@ main() {
     local config=
     local command=
     local kubeconfig="$HOME/.kube/config"
-    local dockerArgs=()
+    local docker_args=()
 
     parse_command_line "$@"
 
@@ -106,7 +106,7 @@ parse_command_line() {
                 ;;
             --docker-args)
                 if [[ -n "${2:-}" ]]; then
-                    IFS=" " read -r -a dockerArgs <<< "$2"
+                    IFS=" " read -r -a docker_args <<< "$2"
                     shift
                 else
                     echo "ERROR: '--docker-args' cannot be empty." >&2
@@ -131,7 +131,7 @@ run_ct_container() {
         args+=("--volume=$(pwd)/$config:/etc/ct/ct.yaml" )
     fi
 
-    args=("${args[@]}" "${dockerArgs[@]}")
+    args=("${args[@]}" "${docker_args[@]}")
 
     args+=("$image" cat)
 

@@ -12,7 +12,7 @@ inputs:
   command:
     description: "The chart-testing command to run"
     required: true
-  dockerArgs:
+  docker_args:
     description: "Additional arguments which should be passed to docker when starting the ct container"
   kubeconfig:
     description: "The path to the kube config file"
