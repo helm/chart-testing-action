@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v3.1.1
+DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v3.2.0
 
 show_help() {
 cat << EOF
