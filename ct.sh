@@ -50,16 +50,45 @@ parse_command_line() {
 }
 
 install_chart_testing() {
-    echo "Installing chart-testing..."
+    if [[ ! -d "$RUNNER_TOOL_CACHE" ]]; then
+        echo "Cache directory '$RUNNER_TOOL_CACHE' does not exist" >&2
+        exit 1
+    fi
 
-    curl -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
-    tar -xzf ct.tar.gz
-    sudo mv ct /usr/local/bin/ct
-    mkdir "$HOME/.ct"
-    mv etc/* "$HOME/.ct"
+    local cache_dir="$RUNNER_TOOL_CACHE/ct/$version/amd64"
+    if [[ ! -d "$cache_dir" ]]; then
+        mkdir -p "$cache_dir"
 
-    pip install yamllint==1.25.0
-    pip install yamale==3.0.4
+        echo "Installing chart-testing..."
+        curl -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
+        tar -xzf ct.tar.gz -C "$cache_dir"
+        rm -f ct.tar.gz
+
+        echo 'Adding ct directory to PATH...'
+        echo "$cache_dir" >> "$GITHUB_PATH"
+
+        echo 'Setting CT_CONFIG_DIR...'
+        echo "CT_CONFIG_DIR=$cache_dir/etc" >> "$GITHUB_ENV"
+
+        local venv_dir="$cache_dir/venv"
+
+        echo 'Creating virtual Python environment...'
+        python3 -m venv "$venv_dir"
+
+        echo 'Activating virtual environment...'
+        # shellcheck disable=SC1090
+        source "$venv_dir/bin/activate"
+
+        echo 'Installing yamllint...'
+        pip3 install yamllint==1.25.0
+
+        echo 'Installing Yamale...'
+        pip3 install yamale==3.0.4
+
+        echo 'Configuring environment variables for virtual environment for subsequent workflow steps...'
+        echo "VIRTUAL_ENV=$venv_dir" >> "$GITHUB_ENV"
+        echo "$venv_dir/bin" >> "$GITHUB_PATH"
+    fi
 }
 
 main "$@"
