@@ -1,32 +1,27 @@
 # *chart-testing* Action
 
-A GitHub Action to lint and test Helm charts, using the [helm/chart-testing](https://github.com/helm/chart-testing) CLI tool.
-
-`master` supports Helm 3 only.
-Support for Helm 2 is on branch `dev-v2`.
+A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/chart-testing) CLI tool.
 
 ## Usage
 
 ### Pre-requisites
 
-1. A GitHub repo containing a directory with your Helm charts (eg: `/charts`)
-1. Optional: if you want to override the defaults, a [chart-testing config file](https://github.com/helm/chart-testing#configuration) in your GitHub repo (eg. `/ct.yaml`)
-1. A workflow YAML file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below.
+1. A GitHub repo containing a directory with your Helm charts (e.g: `charts`)
+1. A workflow YAML file in your `.github/workflows` directory. 
+  An [example workflow](#example-workflow) is available below.
   For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
 
 ### Inputs
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `image`: The chart-testing Docker image to use (default: `quay.io/helmpack/chart-testing:v3.2.0`)
-- `config`: The path to the config file
-- `command`: The chart-testing command to run
-- `kubeconfig`: The path to the kube config file
-- `docker_args`: Additional arguments which should be passed to docker when starting the ct container
+- `version`: The chart-testing version to install (default: `v3.2.0`)
 
 ### Example Workflow
 
 Create a workflow (eg: `.github/workflows/lint-test.yaml`):
+
+Note that Python must be installed as shown below because the action also installs [Yamale](https://github.com/23andMe/Yamale) and [yamllint](https://github.com/adrienverge/yamllint) which require Python.
 
 ```yaml
 name: Lint and Test Charts
@@ -39,28 +34,44 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Fetch history
-        run: git fetch --prune --unshallow
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.0.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed)
+          if [[ -n "$changed" ]]; then
+            echo "::set-output name=changed::true"
+          fi
 
       - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.2.0
-        with:
-          command: lint
+        run: ct lint
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.2.0
-        with:
-          command: install
+        run: ct install
 ```
 
-This uses [`@helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, and [`@helm/chart-testing-action`](https://www.github.com/helm/chart-testing-action) to lint and test your charts on every Pull Request.
+This uses [`helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, 
+and [`helm/chart-testing`](https://www.github.com/helm/chart-testing) to lint and test your charts on every pull request.
+
+## Upgrading from v1.x.x
+
+v2.0.0 is a major release with breaking changes.
+The action no longer wraps the chart-testing tool but simply installs it.
+It is no longer run in a Docker container.
+All `ct` options are now directly available without the additional abstraction layer.
 
 ## Code of conduct
 

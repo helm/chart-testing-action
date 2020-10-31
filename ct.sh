@@ -4,57 +4,23 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_IMAGE=quay.io/helmpack/chart-testing:v3.2.0
+DEFAULT_CHART_TESTING_VERSION=v3.2.0
 
 show_help() {
 cat << EOF
 Usage: $(basename "$0") <options>
 
     -h, --help          Display help
-    -i, --image         The chart-testing Docker image to use (default: ${DEFAULT_IMAGE})
-    -c, --command       The chart-testing command to run
-        --config        The path to the chart-testing config file
-        --kubeconfig    The path to the kube config file
-        --docker-args   Additional arguments which should be passed to docker when starting the ct container
+    -v, --version       The chart-testing version to use (default: $DEFAULT_CHART_TESTING_VERSION)"
 EOF
 }
 
 main() {
-    local image="$DEFAULT_IMAGE"
-    local config=
-    local command=
-    local kubeconfig="$HOME/.kube/config"
-    local docker_args=()
+    local version="$DEFAULT_CHART_TESTING_VERSION"
 
     parse_command_line "$@"
 
-    if [[ -z "$command" ]]; then
-        echo "ERROR: '-c|--command' is required." >&2
-        show_help
-        exit 1
-    fi
-
-    run_ct_container
-    trap cleanup EXIT
-
-    local changed
-    changed=$(docker_exec ct list-changed)
-    if [[ -z "$changed" ]]; then
-        echo 'No chart changes detected.'
-        echo "::set-output name=changed::false"
-        return
-    fi
-
-    # Convenience output for other actions to make use of ct config to check if
-    # charts changed.
-    echo "::set-output name=changed::true"
-
-    # All other ct commands require a cluster to be created in a previous step.
-    if [[ "$command" != "lint" ]] && [[ "$command" != "list-changed" ]]; then
-        configure_kube
-    fi
-
-    run_ct
+    install_chart_testing
 }
 
 parse_command_line() {
@@ -64,52 +30,12 @@ parse_command_line() {
                 show_help
                 exit
                 ;;
-            -i|--image)
+            -v|--version)
                 if [[ -n "${2:-}" ]]; then
-                    image="$2"
+                    version="$2"
                     shift
                 else
-                    echo "ERROR: '-i|--image' cannot be empty." >&2
-                    show_help
-                    exit 1
-                fi
-                ;;
-            -c|--command)
-                if [[ -n "${2:-}" ]]; then
-                    command="$2"
-                    shift
-                else
-                    echo "ERROR: '-c|--command' cannot be empty." >&2
-                    show_help
-                    exit 1
-                fi
-                ;;
-            --config)
-                if [[ -n "${2:-}" ]]; then
-                    config="$2"
-                    shift
-                else
-                    echo "ERROR: '--config' cannot be empty." >&2
-                    show_help
-                    exit 1
-                fi
-                ;;
-            --kubeconfig)
-                if [[ -n "${2:-}" ]]; then
-                    kubeconfig="$2"
-                    shift
-                else
-                    echo "ERROR: '--kubeconfig' cannot be empty." >&2
-                    show_help
-                    exit 1
-                fi
-                ;;
-            --docker-args)
-                if [[ -n "${2:-}" ]]; then
-                    IFS=" " read -r -a docker_args <<< "$2"
-                    shift
-                else
-                    echo "ERROR: '--docker-args' cannot be empty." >&2
+                    echo "ERROR: '-v|--version' cannot be empty." >&2
                     show_help
                     exit 1
                 fi
@@ -123,45 +49,17 @@ parse_command_line() {
     done
 }
 
-run_ct_container() {
-    echo 'Running ct container...'
-    local args=(run --rm --interactive --detach --network host --name ct "--volume=$(pwd):/workdir" "--workdir=/workdir")
+install_chart_testing() {
+    echo "Installing chart-testing..."
 
-    if [[ -n "$config" ]]; then
-        args+=("--volume=$(pwd)/$config:/etc/ct/ct.yaml" )
-    fi
+    curl -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
+    tar -xzf ct.tar.gz
+    sudo mv ct /usr/local/bin/ct
+    mkdir "$HOME/.ct"
+    mv etc/* "$HOME/.ct"
 
-    args=("${args[@]}" "${docker_args[@]}")
-
-    args+=("$image" cat)
-
-    echo docker "${args[@]}"
-    docker "${args[@]}"
-    echo
-}
-
-configure_kube() {
-    # need to copy full .kube dir for certs, etc:
-    local confdir
-    confdir=$(dirname "$kubeconfig")
-    docker cp "$confdir" ct:/root/.kube
-}
-
-run_ct() {
-    echo "Running 'ct $command'..."
-    docker_exec ct "$command"
-    echo
-}
-
-cleanup() {
-    echo 'Removing ct container...'
-    docker kill ct > /dev/null 2>&1
-    echo 'Done!'
-}
-
-docker_exec() {
-    echo docker exec --interactive ct "$@"
-    docker exec --interactive ct "$@"
+    pip install yamllint==1.25.0
+    pip install yamale==3.0.4
 }
 
 main "$@"

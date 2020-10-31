@@ -1,24 +1,15 @@
 name: "Helm Chart Testing"
-description: "Run the Helm chart-testing tool"
+description: "Install the Helm chart-testing tool"
 author: "The Helm authors"
 branding:
   color: blue
   icon: anchor
 inputs:
-  image:
-    description: "The chart-testing Docker image to use (default: quay.io/helmpack/chart-testing:v3.2.0)"
-  config:
-    description: "The relative path to the chart-testing config file"
-  command:
-    description: "The chart-testing command to run"
-    required: true
-  docker_args:
-    description: "Additional arguments which should be passed to docker when starting the ct container"
-  kubeconfig:
-    description: "The path to the kube config file"
-outputs:
-  changed:
-    description: "Whether or not charts have changed (true/false)"
+  version:
+    description: "The chart-testing version to install (default: v3.2.0)"
+    default: v3.2.0
 runs:
-  using: "node12"
-  main: "main.js"
+  using: composite
+  steps:
+    - run: "$GITHUB_ACTION_PATH/ct.sh --version ${{ inputs.version }}"
+      shell: bash
