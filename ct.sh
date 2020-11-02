@@ -55,7 +55,10 @@ install_chart_testing() {
         exit 1
     fi
 
-    local cache_dir="$RUNNER_TOOL_CACHE/ct/$version/amd64"
+    local arch
+    arch=$(uname -m)
+
+    local cache_dir="$RUNNER_TOOL_CACHE/ct/$version/$arch"
     if [[ ! -d "$cache_dir" ]]; then
         mkdir -p "$cache_dir"
 
