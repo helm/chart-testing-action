@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_CHART_TESTING_VERSION=v3.2.0
+DEFAULT_CHART_TESTING_VERSION=v3.3.0
 
 show_help() {
 cat << EOF
@@ -92,6 +92,8 @@ install_chart_testing() {
         echo "VIRTUAL_ENV=$venv_dir" >> "$GITHUB_ENV"
         echo "$venv_dir/bin" >> "$GITHUB_PATH"
     fi
+
+    ct version
 }
 
 main "$@"
