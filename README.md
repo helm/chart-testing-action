@@ -15,13 +15,15 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `v3.2.0`)
+- `version`: The chart-testing version to install (default: `v3.3.0`)
 
 ### Example Workflow
 
 Create a workflow (eg: `.github/workflows/lint-test.yaml`):
 
-Note that Python must be installed as shown below because the action also installs [Yamale](https://github.com/23andMe/Yamale) and [yamllint](https://github.com/adrienverge/yamllint) which require Python.
+Note that Helm and Python must be installed.
+This can be achieved using actions as shown in the example below.
+Python is required because `ct lint` runs [Yamale](https://github.com/23andMe/Yamale) and [yamllint](https://github.com/adrienverge/yamllint) which require Python.
 
 ```yaml
 name: Lint and Test Charts
@@ -36,6 +38,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
 
       - uses: actions/setup-python@v2
         with:
