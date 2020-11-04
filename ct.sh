@@ -93,7 +93,7 @@ install_chart_testing() {
         echo "$venv_dir/bin" >> "$GITHUB_PATH"
     fi
 
-    ct version
+    "$cache_dir/ct" version
 }
 
 main "$@"
