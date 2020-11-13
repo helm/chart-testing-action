@@ -55,7 +55,8 @@ install_chart_testing() {
         exit 1
     fi
 
-    local arch=$(uname -m)
+    local arch
+    arch=$(uname -m)
     local cache_dir="$RUNNER_TOOL_CACHE/ct/$version/$arch"
     local venv_dir="$cache_dir/venv"
 
