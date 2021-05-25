@@ -15,7 +15,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `v3.3.0`)
+- `version`: The chart-testing version to install (default: `v3.4.0`)
 
 ### Example Workflow
 
