@@ -76,7 +76,8 @@ install_chart_testing() {
         source "$venv_dir/bin/activate"
 
         echo 'Installing yamllint...'
-        pip3 install yamllint==1.25.0
+        # custom version for line numbers&columns https://github.com/adrienverge/yamllint/pull/422
+        pip3 install git+git://github.com/adrienverge/yamllint.git@4f1bbc33dcb550b27a77e10c9831b9ff732bc5a8
 
         echo 'Installing Yamale...'
         pip3 install yamale==3.0.4
