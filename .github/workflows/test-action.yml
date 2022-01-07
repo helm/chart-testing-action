@@ -1,0 +1,44 @@
+name: test-chart-testing-action
+
+on: [pull_request]
+
+jobs:
+  test_ct_action:
+    runs-on: ubuntu-latest
+
+    name: Install chart-testing and test presence in path
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install chart-testing
+      uses: ./
+    - name: Check install!
+      run: ct version
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi
+
+  test_ct_action_custom:
+    runs-on: ubuntu-latest
+
+    name: Install Custom chart-testing and test presence in path
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install chart-testing
+      uses: ./
+      with:
+        version: 'v3.4.0'
+    - name: Check install!
+      run: ct version
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi

@@ -7,7 +7,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 ### Pre-requisites
 
 1. A GitHub repo containing a directory with your Helm charts (e.g: `charts`)
-1. A workflow YAML file in your `.github/workflows` directory. 
+1. A workflow YAML file in your `.github/workflows` directory.
   An [example workflow](#example-workflow) is available below.
   For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
 
@@ -15,7 +15,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `v3.4.0`)
+- `version`: The chart-testing version to install (default: `v3.5.0`)
 
 ### Example Workflow
 
@@ -42,14 +42,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.4.0
+          version: v3.7.2
 
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.1.0
+        uses: helm/chart-testing-action@v2.2.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
