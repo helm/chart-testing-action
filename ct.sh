@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_CHART_TESTING_VERSION=v3.5.0
+DEFAULT_CHART_TESTING_VERSION=v3.5.1
 
 show_help() {
 cat << EOF
