@@ -76,7 +76,7 @@ install_chart_testing() {
         source "$venv_dir/bin/activate"
 
         echo 'Installing yamllint...'
-        pip3 install yamllint==1.25.0
+        pip3 install yamllint==1.27.1
 
         echo 'Installing Yamale...'
         pip3 install yamale==3.0.4
