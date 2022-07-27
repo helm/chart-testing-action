@@ -6,9 +6,9 @@ branding:
   icon: anchor
 inputs:
   version:
-    description: "The chart-testing version to install (default: v3.5.1)"
+    description: "The chart-testing version to install (default: v3.7.0)"
     required: false
-    default: v3.5.1
+    default: v3.7.0
 runs:
   using: composite
   steps:

@@ -11,8 +11,17 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install chart-testing
       uses: ./
-    - name: Check install!
-      run: ct version
+      run: |
+        ct version
+        CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
+        if [[ $ACTUAL_VERSION != 'v3.7.0' ]]; then
+          echo 'should be v3.7.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check root directory
       run: |
         if [[ $(git diff --stat) != '' ]]; then
@@ -31,9 +40,19 @@ jobs:
     - name: Install chart-testing
       uses: ./
       with:
-        version: 'v3.4.0'
+        version: 'v3.5.1'
     - name: Check install!
-      run: ct version
+      run: |
+        ct version
+        CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
+        if [[ $ACTUAL_VERSION != 'v3.5.1' ]]; then
+          echo 'should be v3.5.1'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check root directory
       run: |
         if [[ $(git diff --stat) != '' ]]; then
