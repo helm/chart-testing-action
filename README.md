@@ -15,7 +15,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `v3.5.0`)
+- `version`: The chart-testing version to install (default: `v3.7.0`)
 
 ### Example Workflow
 
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.8.1
+          version: v3.9.2
 
       - uses: actions/setup-python@v2
         with:
@@ -70,7 +70,7 @@ jobs:
         run: ct install
 ```
 
-This uses [`helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster, 
+This uses [`helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster,
 and [`helm/chart-testing`](https://www.github.com/helm/chart-testing) to lint and test your charts on every pull request.
 
 ## Upgrading from v1.x.x
