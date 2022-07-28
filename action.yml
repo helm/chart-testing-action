@@ -6,9 +6,9 @@ branding:
   icon: anchor
 inputs:
   version:
-    description: "The chart-testing version to install (default: v3.5.1)"
+    description: "The chart-testing version to install (default: v3.7.0)"
     required: false
-    default: v3.5.1
+    default: v3.7.0
   yamllint_version:
     description: "The yamllint version to install (default: 1.27.1)"
     required: false
@@ -23,7 +23,7 @@ runs:
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
-            --version=${{ inputs.version }} \
-            --yamllint-version={{ inputs.yamllint_version }} \
-            --yamale-version=${{ inputs.yamale_version }}
+            --version ${{ inputs.version }} \
+            --yamllint-version ${{ inputs.yamllint_version }} \
+            --yamale-version ${{ inputs.yamale_version }}
       shell: bash
