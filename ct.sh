@@ -5,6 +5,8 @@ set -o nounset
 set -o pipefail
 
 DEFAULT_CHART_TESTING_VERSION=v3.7.0
+DEFAULT_YAMLLINT_VERSION=1.27.1
+DEFAULT_YAMALE_VERSION=3.0.4
 
 show_help() {
 cat << EOF
@@ -17,6 +19,8 @@ EOF
 
 main() {
     local version="$DEFAULT_CHART_TESTING_VERSION"
+    local yamllint_version="$DEFAULT_YAMLLINT_VERSION"
+    local yamale_version="$DEFAULT_YAMALE_VERSION"
 
     parse_command_line "$@"
 
@@ -36,6 +40,26 @@ parse_command_line() {
                     shift
                 else
                     echo "ERROR: '-v|--version' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
+                ;;
+            --yamllint-version)
+                if [[ -n "${2:-}" ]]; then
+                    yamllint_version="$2"
+                    shift
+                else
+                    echo "ERROR: '--yamllint-version' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
+                ;;
+            --yamale-version)
+                if [[ -n "${2:-}" ]]; then
+                    yamale_version="$2"
+                    shift
+                else
+                    echo "ERROR: '--yamale-version' cannot be empty." >&2
                     show_help
                     exit 1
                 fi
@@ -76,10 +100,10 @@ install_chart_testing() {
         source "$venv_dir/bin/activate"
 
         echo 'Installing yamllint...'
-        pip3 install yamllint==1.27.1
+        pip3 install "yamllint==${yamllint_version}"
 
         echo 'Installing Yamale...'
-        pip3 install yamale==3.0.4
+        pip3 install "yamale==${yamale_version}"
     fi
 
     # https://github.com/helm/chart-testing-action/issues/62

@@ -42,6 +42,8 @@ jobs:
       uses: ./
       with:
         version: 'v3.5.1'
+        yamllint_version: '1.27.1'
+        yamale_version: '3.0.4'
     - name: Check install!
       run: |
         ct version
