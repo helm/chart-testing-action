@@ -6,9 +6,9 @@ branding:
   icon: anchor
 inputs:
   version:
-    description: "The chart-testing version to install (default: v3.7.0)"
+    description: "The chart-testing version to install (default: v3.7.1)"
     required: false
-    default: v3.7.0
+    default: v3.7.1
   yamllint_version:
     description: "The yamllint version to install (default: 1.27.1)"
     required: false
