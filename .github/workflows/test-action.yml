@@ -8,7 +8,7 @@ jobs:
 
     name: Install chart-testing and test presence in path
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install chart-testing
       uses: ./
     - name: Check install!
@@ -16,8 +16,8 @@ jobs:
         ct version
         CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
-        if [[ $ACTUAL_VERSION != 'v3.7.0' ]]; then
-          echo 'should be v3.7.0'
+        if [[ $ACTUAL_VERSION != 'v3.7.1' ]]; then
+          echo 'should be v3.7.1'
           exit 1
         else
           exit 0
@@ -37,7 +37,7 @@ jobs:
 
     name: Install Custom chart-testing and test presence in path
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install chart-testing
       uses: ./
       with:
