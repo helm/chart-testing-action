@@ -6,7 +6,8 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 ### Pre-requisites
 
-1. A GitHub repo containing a directory with your Helm charts (e.g: `charts`)
+1. A GitHub repo containing your Helm charts.
+    - _Note_: by default, this action expects your charts to be in a `charts/` directory. If you'd like to use a different location, you can specify the location either as a flag to the `ct` command with `--chart-dirs somedir` and/or `--charts .` Or use a `ct.yaml` configuration file. See the [example](https://github.com/helm/chart-testing-action/issues/21#issuecomment-602831632) for more details.
 1. A workflow YAML file in your `.github/workflows` directory.
   An [example workflow](#example-workflow) is available below.
   For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
