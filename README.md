@@ -57,7 +57,7 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
           fi
