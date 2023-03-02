@@ -87,8 +87,8 @@ install_chart_testing() {
     if [[ ! -d "$cache_dir" ]]; then
         mkdir -p "$cache_dir"
 
-        echo "Installing chart-testing..."
-        curl -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
+        echo "Installing chart-testing ${version}..."
+        curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
         tar -xzf ct.tar.gz -C "$cache_dir"
         rm -f ct.tar.gz
 
