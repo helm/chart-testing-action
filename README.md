@@ -70,7 +70,9 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        run: ct install
+        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+        if: steps.list-changed.outputs.changed == 'true'
+
 ```
 
 This uses [`helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster,
