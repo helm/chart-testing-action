@@ -16,8 +16,8 @@ jobs:
         ct version
         CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
-        if [[ $ACTUAL_VERSION != 'v3.7.1' ]]; then
-          echo 'should be v3.7.1'
+        if [[ $ACTUAL_VERSION != 'v3.8.0' ]]; then
+          echo 'should be v3.8.0'
           exit 1
         else
           exit 0
@@ -41,7 +41,7 @@ jobs:
     - name: Install chart-testing
       uses: ./
       with:
-        version: 'v3.5.1'
+        version: 'v3.7.1'
         yamllint_version: '1.27.1'
         yamale_version: '3.0.4'
     - name: Check install!
@@ -49,8 +49,8 @@ jobs:
         ct version
         CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
-        if [[ $ACTUAL_VERSION != 'v3.5.1' ]]; then
-          echo 'should be v3.5.1'
+        if [[ $ACTUAL_VERSION != 'v3.7.1' ]]; then
+          echo 'should be v3.7.1'
           exit 1
         else
           exit 0

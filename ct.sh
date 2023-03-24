@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_CHART_TESTING_VERSION=v3.7.1
+DEFAULT_CHART_TESTING_VERSION=v3.8.0
 DEFAULT_YAMLLINT_VERSION=1.27.1
 DEFAULT_YAMALE_VERSION=3.0.4
 
@@ -93,8 +93,8 @@ install_chart_testing() {
 
         curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_amd64.tar.gz"
         cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
-          --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/tags/${version#v}" \
-          --certificate-oidc-issuer "https://token.actions.githubusercontent.com" "chart-testing_${version#v}_linux_amd64.tar.gz"
+          --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
+          --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
         retVal=$?
         if [[ "$retVal" -ne 0 ]]; then
           log_error "Unable to validate chart-testing version: ${version}"
