@@ -83,7 +83,7 @@ install_chart_testing() {
     if [[ $(uname -m) == "aarch64" ]]; then
       arch=arm64
     else
-      arch=$(uname -m)    
+      arch=amd64
     fi
     local cache_dir="$RUNNER_TOOL_CACHE/ct/$version/$arch"
     local venv_dir="$cache_dir/venv"
