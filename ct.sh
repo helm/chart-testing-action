@@ -111,8 +111,10 @@ install_chart_testing() {
             auth+=(--header "Authorization: Bearer ${token}")
         fi
 
+        curl "${auth[@]}" --retry 5 --retry-delay 1 -sSLo chart-testing.tar.gz.pem $CT_CERT
+        curl "${auth[@]}" --retry 5 --retry-delay 1 -sSLo chart-testing.tar.gz.sig $CT_SIG
         curl "${auth[@]}" --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_$arch.tar.gz"
-        cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
+        cosign verify-blob --certificate ./chart-testing.tar.gz.pem --signature ./chart-testing.tar.gz.sig \
           --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
           --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
         retVal=$?
