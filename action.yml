@@ -5,6 +5,9 @@ branding:
   color: blue
   icon: anchor
 inputs:
+  token:
+    description: "The token used to authenticate when fetching chart-testing release. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting."
+    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   version:
     description: "The chart-testing version to install (default: v3.8.0)"
     required: false
@@ -24,6 +27,7 @@ runs:
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
+            --token ${{ inputs.token }} \
             --version ${{ inputs.version }} \
             --yamllint-version ${{ inputs.yamllint_version }} \
             --yamale-version ${{ inputs.yamale_version }}
