@@ -4,7 +4,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_TOKEN=
 DEFAULT_CHART_TESTING_VERSION=v3.8.0
 DEFAULT_YAMLLINT_VERSION=1.27.1
 DEFAULT_YAMALE_VERSION=3.0.4
@@ -20,7 +19,7 @@ EOF
 }
 
 main() {
-    local token="$DEFAULT_TOKEN"
+    local token=""
     local version="$DEFAULT_CHART_TESTING_VERSION"
     local yamllint_version="$DEFAULT_YAMLLINT_VERSION"
     local yamale_version="$DEFAULT_YAMALE_VERSION"
@@ -108,12 +107,11 @@ install_chart_testing() {
         CT_CERT=https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
         CT_SIG=https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
 
-        AUTH_HEADER=""
         if [ ! -z "$token" ]; then
-            AUTH_HEADER="--header \"Authorization: Bearer ${token}\""
+            auth+=(--header "Authorization: Bearer ${token}")
         fi
 
-        curl --retry 5 --retry-delay 1 -sSLo $AUTH_HEADER ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_$arch.tar.gz"
+        curl "${auth[@]}" --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/$version/chart-testing_${version#v}_linux_$arch.tar.gz"
         cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
           --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
           --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
