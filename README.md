@@ -48,7 +48,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
           check-latest: true
 
       - name: Set up chart-testing
@@ -68,7 +68,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.4.0
+        uses: helm/kind-action@v1.5.0
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
