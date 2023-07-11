@@ -6,9 +6,9 @@ branding:
   icon: anchor
 inputs:
   version:
-    description: "The chart-testing version to install (default: v3.8.0)"
+    description: "The chart-testing version to install (default: 3.9.0)"
     required: false
-    default: v3.8.0
+    default: '3.9.0'
   yamllint_version:
     description: "The yamllint version to install (default: 1.27.1)"
     required: false
@@ -20,7 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: sigstore/cosign-installer@c3667d99424e7e6047999fb6246c0da843953c65 # v3.0.1
+    - uses: sigstore/cosign-installer@6e04d228eb30da1757ee4e1dd75a0ec73a653e06 # v3.1.1
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \

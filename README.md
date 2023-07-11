@@ -15,7 +15,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `v3.8.0`)
+- `version`: The chart-testing version to install (default: `3.9.0`)
 - `yamllint_version`: The chart-testing version to install (default: `1.27.1`)
 - `yamale_version`: The chart-testing version to install (default: `3.0.4`)
 
@@ -44,7 +44,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
-          version: v3.11.2
+          version: v3.12.1
 
       - uses: actions/setup-python@v4
         with:
@@ -52,7 +52,7 @@ jobs:
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.4.0
+        uses: helm/chart-testing-action@v2.5.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
