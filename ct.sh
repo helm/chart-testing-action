@@ -100,6 +100,7 @@ install_chart_testing() {
     local cache_dir="${RUNNER_TOOL_CACHE}/ct/${version}/${arch}"
     local venv_dir="${cache_dir}/venv"
 
+    curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
     if [[ ! -d "${cache_dir}" ]]; then
         mkdir -p "${cache_dir}"
 
@@ -108,7 +109,6 @@ install_chart_testing() {
             CT_CERT=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
             CT_SIG=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
 
-            curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
             cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
             --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
