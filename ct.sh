@@ -5,6 +5,7 @@ set -o nounset
 set -o pipefail
 
 DEFAULT_CHART_TESTING_VERSION=3.9.0
+DEFAULT_VERIFY_BLOB=true
 DEFAULT_YAMLLINT_VERSION=1.27.1
 DEFAULT_YAMALE_VERSION=3.0.4
 
@@ -19,6 +20,7 @@ EOF
 
 main() {
     local version="${DEFAULT_CHART_TESTING_VERSION}"
+    local verify_blob="${DEFAULT_VERIFY_BLOB}"
     local yamllint_version="${DEFAULT_YAMLLINT_VERSION}"
     local yamale_version="${DEFAULT_YAMALE_VERSION}"
 
@@ -33,6 +35,16 @@ parse_command_line() {
             -h|--help)
                 show_help
                 exit
+                ;;
+            --verify-blob)
+                if [[ -n "${2:-}" ]]; then
+                    verify_blob="${2#v}"
+                    shift
+                else
+                    echo "ERROR: '--verify-blob' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
                 ;;
             -v|--version)
                 if [[ -n "${2:-}" ]]; then
@@ -91,18 +103,20 @@ install_chart_testing() {
     if [[ ! -d "${cache_dir}" ]]; then
         mkdir -p "${cache_dir}"
 
-        echo "Installing chart-testing v${version}..."
-        CT_CERT=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
-        CT_SIG=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
+        if [[ "${verify_blob}" != "false" ]]; then
+            echo "Installing chart-testing v${version}..."
+            CT_CERT=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
+            CT_SIG=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
 
-        curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
-        cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
-          --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
-          --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
-        retVal=$?
-        if [[ "${retVal}" -ne 0 ]]; then
-          log_error "Unable to validate chart-testing version: v${version}"
-          exit 1
+            curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
+            cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
+            --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
+            retVal=$?
+            if [[ "${retVal}" -ne 0 ]]; then
+            log_error "Unable to validate chart-testing version: v${version}"
+            exit 1
+            fi
         fi
 
         tar -xzf ct.tar.gz -C "${cache_dir}"
