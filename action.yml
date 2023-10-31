@@ -24,6 +24,7 @@ runs:
   using: composite
   steps:
     - uses: sigstore/cosign-installer@11086d25041f77fe8fe7b9ea4e48e3b9192b8f19 # v3.1.2
+      if: ${{ inputs.verify_blob != 'false' }}
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
