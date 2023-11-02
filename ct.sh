@@ -101,11 +101,12 @@ install_chart_testing() {
     local venv_dir="${cache_dir}/venv"
 
     curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
+    echo "Installing chart-testing v${version}..."
     if [[ ! -d "${cache_dir}" ]]; then
         mkdir -p "${cache_dir}"
 
         if [[ "${verify_blob}" != "false" ]]; then
-            echo "Installing chart-testing v${version}..."
+            echo "Verifing blob..."
             CT_CERT=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
             CT_SIG=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
 
@@ -117,6 +118,8 @@ install_chart_testing() {
             log_error "Unable to validate chart-testing version: v${version}"
             exit 1
             fi
+        else
+            echo "Skipping verifing blob..."
         fi
 
         tar -xzf ct.tar.gz -C "${cache_dir}"
