@@ -7,6 +7,7 @@ branding:
 inputs:
   verify_blob:
     description: "determines whether the download blob should be verified (default: true)"
+    required: false
     default: 'true'
   version:
     description: "The chart-testing version to install (default: 3.10.0)"
