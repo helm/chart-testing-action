@@ -20,7 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+    - uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
