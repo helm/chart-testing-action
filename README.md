@@ -15,9 +15,9 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `3.10.1`)
-- `yamllint_version`: The `yamllint` version to install (default: `1.27.1`)
-- `yamale_version`: The `yamale` version to install (default: `3.0.4`)
+- `version`: The chart-testing version to install (default: `3.11.0`)
+- `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
+- `yamale_version`: The `yamale` version to install (default: `4.0.4`)
 
 ### Example Workflow
 
@@ -44,15 +44,15 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
-          version: v3.14.0
+          version: v3.14.4
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.x'
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.1
+        uses: helm/chart-testing-action@v2.7.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -68,7 +68,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.8.0
+        uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
