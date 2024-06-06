@@ -126,9 +126,6 @@ install_chart_testing() {
     echo 'Adding ct directory to PATH...'
     echo "${cache_dir}" >> "${GITHUB_PATH}"
 
-    echo 'Setting CT_CONFIG_DIR...'
-    echo "CT_CONFIG_DIR=${cache_dir}/etc" >> "${GITHUB_ENV}"
-
     echo 'Configuring environment variables for virtual environment for subsequent workflow steps...'
     echo "VIRTUAL_ENV=${venv_dir}" >> "${GITHUB_ENV}"
     echo "${venv_dir}/bin" >> "${GITHUB_PATH}"
