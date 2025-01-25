@@ -15,9 +15,9 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `3.9.0`)
-- `yamllint_version`: The chart-testing version to install (default: `1.27.1`)
-- `yamale_version`: The chart-testing version to install (default: `3.0.4`)
+- `version`: The chart-testing version to install (default: `3.12.0`)
+- `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
+- `yamale_version`: The `yamale` version to install (default: `4.0.4`)
 
 ### Example Workflow
 
@@ -42,17 +42,17 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4.2.0
         with:
-          version: v3.12.1
+          version: v3.17.0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5.3.0
         with:
-          python-version: '3.10'
+          python-version: '3.x'
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.0
+        uses: helm/chart-testing-action@v2.7.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -68,7 +68,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.8.0
+        uses: helm/kind-action@v1.12.0
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'

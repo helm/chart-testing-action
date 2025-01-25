@@ -9,7 +9,7 @@ jobs:
 
     name: Install chart-testing and test presence in path
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Install chart-testing
       uses: ./
     - name: Check install!
@@ -17,8 +17,8 @@ jobs:
         ct version
         CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
-        if [[ $ACTUAL_VERSION != 'v3.10.0' ]]; then
-          echo 'should be v3.10.0'
+        if [[ $ACTUAL_VERSION != 'v3.12.0' ]]; then
+          echo 'should be v3.12.0'
           exit 1
         else
           exit 0
@@ -38,7 +38,7 @@ jobs:
 
     name: Install Custom chart-testing and test presence in path
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Install chart-testing
       uses: ./
       with:
@@ -66,12 +66,60 @@ jobs:
           exit 0
         fi
 
+  test_ct_action_with_helm:
+    runs-on: ubuntu-latest
+
+    name: run action to test a helm chart
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
+      with:
+        version: v3.17.0
+
+    - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      with:
+        python-version: '3.x'
+        check-latest: true
+
+    - name: Install chart-testing
+      uses: ./
+
+    - run: |
+        sed -i "s/version: .*/version: 2.0.0/" testdata/simple-deployment/Chart.yaml
+        cat testdata/simple-deployment/Chart.yaml
+
+    - name: Run chart-testing (list-changed)
+      id: list-changed
+      run: |
+        changed=$(ct list-changed --chart-dirs=testdata --target-branch ${{ github.event.repository.default_branch }})
+        if [[ -n "$changed" ]]; then
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run chart-testing (lint)
+      if: steps.list-changed.outputs.changed == 'true'
+      run: ct lint --chart-dirs=testdata --target-branch ${{ github.event.repository.default_branch }}
+
+    - name: Create kind cluster
+      if: steps.list-changed.outputs.changed == 'true'
+      uses: helm/kind-action@v1.10.0
+
+    - name: Run chart-testing (install)
+      if: steps.list-changed.outputs.changed == 'true'
+      run: ct install --chart-dirs=testdata --target-branch ${{ github.event.repository.default_branch }}
+
   test_ct_action_noverify:
     runs-on: ubuntu-latest
 
     name: Install chart-testing without verifiing blob and test presence in path
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        fetch-depth: 0
     - name: Install chart-testing
       uses: ./
       with:
