@@ -5,6 +5,10 @@ branding:
   color: blue
   icon: anchor
 inputs:
+  verify_blob:
+    description: "determines whether the download blob should be verified (default: true)"
+    required: false
+    default: 'true'
   version:
     description: "The chart-testing version to install (default: 3.12.0)"
     required: false
@@ -21,9 +25,11 @@ runs:
   using: composite
   steps:
     - uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+      if: ${{ inputs.verify_blob != 'false' }}
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
+            --verify-blob ${{ inputs.verify_blob }} \
             --version ${{ inputs.version }} \
             --yamllint-version ${{ inputs.yamllint_version }} \
             --yamale-version ${{ inputs.yamale_version }}
