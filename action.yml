@@ -14,13 +14,14 @@ inputs:
     required: false
     default: '1.33.0'
   yamale_version:
-    description: "The yamale version to install (default: 4.0.4)"
+    description: "The yamale version to install (default: 6.0.0)"
     required: false
     default: '6.0.0'
 runs:
   using: composite
   steps:
     - uses: sigstore/cosign-installer@d7d6bc7722e3daa8354c50bcb52f4837da5e9b6a # v3.8.1
+    - uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \

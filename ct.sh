@@ -92,11 +92,11 @@ install_chart_testing() {
         mkdir -p "${cache_dir}"
 
         echo "Installing chart-testing v${version}..."
-        CT_CERT=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.pem
-        CT_SIG=https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz.sig
+        CT_CERT=https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz.pem
+        CT_SIG=https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz.sig
 
-        curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v$version/chart-testing_${version#v}_linux_$arch.tar.gz"
-        cosign verify-blob --certificate $CT_CERT --signature $CT_SIG \
+        curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz "https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz"
+        cosign verify-blob --certificate "${CT_CERT}" --signature "${CT_SIG}" \
           --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
           --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
         retVal=$?
@@ -109,17 +109,15 @@ install_chart_testing() {
         rm -f ct.tar.gz
 
         echo 'Creating virtual Python environment...'
-        python3 -m venv "${venv_dir}"
-
-        echo 'Activating virtual environment...'
-        # shellcheck disable=SC1090
-        source "${venv_dir}/bin/activate"
+        export UV_LINK_MODE=copy
+        uv venv "${venv_dir}"
+        export VIRTUAL_ENV="${venv_dir}"
 
         echo 'Installing yamllint...'
-        pip3 install "yamllint==${yamllint_version}"
+        uv pip install "yamllint==${yamllint_version}"
 
         echo 'Installing Yamale...'
-        pip3 install "yamale==${yamale_version}"
+        uv pip install "yamale==${yamale_version}"
     fi
 
     # https://github.com/helm/chart-testing-action/issues/62
