@@ -13,7 +13,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 ### Inputs
 
-For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
+For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)!
 
 - `version`: The chart-testing version to install (default: `3.12.0`)
 - `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
