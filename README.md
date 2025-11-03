@@ -15,9 +15,9 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `3.12.0`)
+- `version`: The chart-testing version to install (default: `3.14.0`)
 - `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
-- `yamale_version`: The `yamale` version to install (default: `4.0.4`)
+- `yamale_version`: The `yamale` version to install (default: `6.0.0`)
 
 ### Example Workflow
 
@@ -32,27 +32,29 @@ name: Lint and Test Charts
 
 on: pull_request
 
+permissions: {}
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    permisions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v4.2.0
-        with:
-          version: v3.17.0
+        uses: azure/setup-helm@v4.3.1
 
-      - uses: actions/setup-python@v5.3.0
+      - uses: actions/setup-python@v6.0.0
         with:
           python-version: '3.x'
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.7.0
+        uses: helm/chart-testing-action@v2.8.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
