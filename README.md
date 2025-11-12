@@ -37,7 +37,7 @@ permissions: {}
 jobs:
   lint-test:
     runs-on: ubuntu-latest
-    permisions:
+    permissions:
       contents: read
     steps:
       - name: Checkout
