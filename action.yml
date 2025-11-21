@@ -21,7 +21,7 @@ runs:
   using: composite
   steps:
     - uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
-    - uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+    - uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
