@@ -5,22 +5,26 @@ branding:
   color: blue
   icon: anchor
 inputs:
-  version:
-    description: "The chart-testing version to install"
+  github-token:
+    description: "Optional GitHub token to use on astral-sh/setup-uv and avoid rate limits"
     required: false
-    default: '3.14.0'
-  yamllint_version:
-    description: "The yamllint version to install"
-    required: false
-    default: '1.33.0'
-  yamale_version:
-    description: "The yamale version to install"
-    required: false
-    default: '6.0.0'
+    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   uv_version:
     description: "The uv version to install (default: latest)"
     required: false
     default: 'latest'
+  version:
+    description: "The chart-testing version to install"
+    required: false
+    default: '3.14.0'
+  yamale_version:
+    description: "The yamale version to install"
+    required: false
+    default: '6.0.0'
+  yamllint_version:
+    description: "The yamllint version to install"
+    required: false
+    default: '1.33.0'
 runs:
   using: composite
   steps:
@@ -28,6 +32,7 @@ runs:
     - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
       with:
         version: ${{ inputs.uv_version }}
+        github-token: ${{ inputs.github-token }}
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
