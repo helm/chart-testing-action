@@ -5,6 +5,10 @@ branding:
   color: blue
   icon: anchor
 inputs:
+  verify_blob:
+    description: "determines whether the download blob should be verified (default: true)"
+    required: false
+    default: 'true'
   version:
     description: "The chart-testing version to install"
     required: false
@@ -25,12 +29,14 @@ runs:
   using: composite
   steps:
     - uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
+      if: ${{ inputs.verify_blob != 'false' }}
     - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
       with:
         version: ${{ inputs.uv_version }}
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \
+            --verify-blob ${{ inputs.verify_blob }} \
             --version ${{ inputs.version }} \
             --yamllint-version ${{ inputs.yamllint_version }} \
             --yamale-version ${{ inputs.yamale_version }}
