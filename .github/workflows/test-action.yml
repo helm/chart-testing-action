@@ -111,3 +111,36 @@ jobs:
     - name: Run chart-testing (install)
       if: steps.list-changed.outputs.changed == 'true'
       run: ct install --chart-dirs=testdata --target-branch ${{ github.event.repository.default_branch }}
+
+  test_ct_action_noverify:
+    runs-on: ubuntu-latest
+
+    name: Install chart-testing without verifiing blob and test presence in path
+    steps:
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      with:
+        fetch-depth: 0
+    - name: Install chart-testing
+      uses: ./
+      with:
+        verify_blob: 'false'
+    - name: Check install!
+      run: |
+        ct version
+        CT_VERSION_OUTPUT=$(ct version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$CT_VERSION_OUTPUT" | grep Version | rev | cut -d ' ' -f1 | rev)
+        if [[ $ACTUAL_VERSION != 'v3.14.0' ]]; then
+          echo 'should be v3.14.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi
