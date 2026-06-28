@@ -21,6 +21,10 @@ inputs:
     description: "The uv version to install (default: latest)"
     required: false
     default: 'latest'
+  uv_enable_cache:
+    description: "Enable uv cache. Supported values: true, false, auto."
+    required: false
+    default: 'auto'
 runs:
   using: composite
   steps:
@@ -28,6 +32,7 @@ runs:
     - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
       with:
         version: ${{ inputs.uv_version }}
+        enable-cache: ${{ inputs.uv_enable_cache }}
     - run: |
         cd $GITHUB_ACTION_PATH \
         && ./ct.sh \

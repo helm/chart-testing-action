@@ -18,6 +18,8 @@ For more information on inputs, see the [API Documentation](https://developer.gi
 - `version`: The chart-testing version to install (default: `3.14.0`)
 - `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
 - `yamale_version`: The `yamale` version to install (default: `6.0.0`)
+- `uv_version`: The `uv` version to install (default: `latest`)
+- `uv_enable_cache`: Enable `uv` cache. Supported values: `true`, `false`, `auto` (default: `auto`)
 
 ### Example Workflow
 
