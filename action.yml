@@ -21,6 +21,10 @@ inputs:
     description: "The uv version to install (default: latest)"
     required: false
     default: 'latest'
+  lint_config:
+    description: "Path to a custom yamllint config file. If set, it replaces the default lintconf.yaml used by ct lint."
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -34,4 +38,9 @@ runs:
             --version ${{ inputs.version }} \
             --yamllint-version ${{ inputs.yamllint_version }} \
             --yamale-version ${{ inputs.yamale_version }}
+      shell: bash
+    - if: inputs.lint_config != ''
+      run: |
+        cp "${{ inputs.lint_config }}" "${CT_CONFIG_DIR}/lintconf.yaml"
+        echo "Custom yamllint config applied to ${CT_CONFIG_DIR}/lintconf.yaml"
       shell: bash
