@@ -37,9 +37,6 @@ setup() {
     export RUNNER_TOOL_CACHE="${workdir}/cache"
     export GITHUB_PATH="${workdir}/github_path"
     export GITHUB_ENV="${workdir}/github_env"
-    # mktemp -d in ct.sh honours TMPDIR, so staging dirs land here and leaks
-    # are observable.
-    export TMPDIR="${workdir}/tmp"
     : > "${GITHUB_PATH}"
     : > "${GITHUB_ENV}"
 
@@ -96,9 +93,15 @@ cosign_invoked() {
 
 # Runs ct.sh with the stubs first on PATH. Never aborts the suite: the exit
 # status is what most of these tests assert on.
+#
+# TMPDIR is set for this invocation only, so ct.sh's staging directory lands
+# somewhere observable without leaking into the harness's own mktemp calls.
+# Note GNU mktemp honours TMPDIR but BSD mktemp does not, so the staging-dir
+# assertion is only meaningful on Linux, which is where CI runs it.
 run_ct() {
     set +o errexit
-    PATH="${stubdir}:${PATH}" bash "${CT_SH}" "$@" > "${workdir}/output" 2>&1
+    TMPDIR="${workdir}/tmp" PATH="${stubdir}:${PATH}" \
+        bash "${CT_SH}" "$@" > "${workdir}/output" 2>&1
     rc=$?
     set -o errexit
 }
@@ -229,7 +232,7 @@ test_staging_dir_is_always_cleaned_up() {
     run_ct --version 3.14.0
 
     local leaked
-    leaked="$(find "${TMPDIR}" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
+    leaked="$(find "${workdir}/tmp" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
     if [[ "${leaked}" != "0" ]]; then
         fail "staging dir is always cleaned up" "${leaked} staging dir(s) left in TMPDIR"
     else
