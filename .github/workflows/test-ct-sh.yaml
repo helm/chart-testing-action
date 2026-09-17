@@ -1,0 +1,30 @@
+name: test-ct-sh
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  test_ct_sh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Clone the repository
+
+    name: ct.sh failure-path tests
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Run ct.sh tests
+      run: tests/ct_test.sh
+
+    - name: Shellcheck
+      run: shellcheck ct.sh tests/ct_test.sh
