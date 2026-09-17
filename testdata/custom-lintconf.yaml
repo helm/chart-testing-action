@@ -1,0 +1,8 @@
+---
+# Used by the lint_config test in .github/workflows/test-action.yml.
+# The default ct config disables document-start, and
+# simple-deployment/Chart.yaml has no "---", so ct lint only fails
+# when this file is the one in use.
+rules:
+  document-start:
+    present: true
