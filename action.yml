@@ -26,7 +26,7 @@ inputs:
     required: false
     default: ${{ github.token }}
   lint_config:
-    description: "Path to a custom yamllint config file. If set, it replaces the default lintconf.yaml used by ct lint."
+    description: "Path to a custom yamllint config file. If set, ct lint uses it instead of the default lintconf.yaml."
     required: false
     default: ''
 runs:
@@ -45,7 +45,13 @@ runs:
             --yamale-version ${{ inputs.yamale_version }}
       shell: bash
     - if: inputs.lint_config != ''
+      env:
+        LINT_CONFIG: ${{ inputs.lint_config }}
       run: |
-        cp "${{ inputs.lint_config }}" "${CT_CONFIG_DIR}/lintconf.yaml"
-        echo "Custom yamllint config applied to ${CT_CONFIG_DIR}/lintconf.yaml"
+        if [[ ! -f "${LINT_CONFIG}" ]]; then
+          echo "::error::lint_config file not found: ${LINT_CONFIG}"
+          exit 1
+        fi
+        echo "CT_LINT_CONF=$(realpath "${LINT_CONFIG}")" >> "${GITHUB_ENV}"
+        echo "Using custom yamllint config: ${LINT_CONFIG}"
       shell: bash
