@@ -34,9 +34,13 @@ runs:
         version: ${{ inputs.uv_version }}
         github-token: ${{ inputs.github_token }}
     - run: |
-        cd $GITHUB_ACTION_PATH \
+        cd "$GITHUB_ACTION_PATH" \
         && ./ct.sh \
-            --version ${{ inputs.version }} \
-            --yamllint-version ${{ inputs.yamllint_version }} \
-            --yamale-version ${{ inputs.yamale_version }}
+            --version "$CHART_TESTING_VERSION" \
+            --yamllint-version "$YAMLLINT_VERSION" \
+            --yamale-version "$YAMALE_VERSION"
       shell: bash
+      env:
+        CHART_TESTING_VERSION: ${{ inputs.version }}
+        YAMLLINT_VERSION: ${{ inputs.yamllint_version }}
+        YAMALE_VERSION: ${{ inputs.yamale_version }}
