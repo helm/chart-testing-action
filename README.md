@@ -80,6 +80,31 @@ jobs:
 This uses [`helm/kind-action`](https://www.github.com/helm/kind-action) GitHub Action to spin up a [kind](https://kind.sigs.k8s.io/) Kubernetes cluster,
 and [`helm/chart-testing`](https://www.github.com/helm/chart-testing) to lint and test your charts on every pull request.
 
+### Testing charts that use CRDs
+
+If your chart renders custom resources for CRDs that are not installed by the
+chart itself, install those CRDs after the kind cluster is created and before
+running `ct install`. For example, if your repository stores the required CRD
+manifests in a `crds/` directory:
+
+```yaml
+      - name: Create kind cluster
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.12.0
+
+      - name: Install test CRDs
+        if: steps.list-changed.outputs.changed == 'true'
+        run: kubectl apply -f crds/
+
+      - name: Run chart-testing (install)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+```
+
+The `helm/kind-action` step configures `kubectl` for the kind cluster, so later
+workflow steps can apply CRDs or other cluster prerequisites before chart
+installation.
+
 ## Upgrading from v1.x.x
 
 v2.0.0 is a major release with breaking changes.
