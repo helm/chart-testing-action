@@ -25,6 +25,10 @@ inputs:
     description: "GitHub token for authenticating with the GitHub API (default: github.token)"
     required: false
     default: ${{ github.token }}
+  lint_config:
+    description: "Path to a custom yamllint config file. If set, ct lint uses it instead of the default lintconf.yaml."
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -39,4 +43,15 @@ runs:
             --version ${{ inputs.version }} \
             --yamllint-version ${{ inputs.yamllint_version }} \
             --yamale-version ${{ inputs.yamale_version }}
+      shell: bash
+    - if: inputs.lint_config != ''
+      env:
+        LINT_CONFIG: ${{ inputs.lint_config }}
+      run: |
+        if [[ ! -f "${LINT_CONFIG}" ]]; then
+          echo "::error::lint_config file not found: ${LINT_CONFIG}"
+          exit 1
+        fi
+        echo "CT_LINT_CONF=$(realpath "${LINT_CONFIG}")" >> "${GITHUB_ENV}"
+        echo "Using custom yamllint config: ${LINT_CONFIG}"
       shell: bash
