@@ -3,6 +3,10 @@ name: test-chart-testing-action
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test_ct_action:
     runs-on: ubuntu-latest
