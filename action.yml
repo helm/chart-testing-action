@@ -25,19 +25,29 @@ inputs:
     description: "The uv version to install (default: latest)"
     required: false
     default: 'latest'
+  github_token:
+    description: "GitHub token for authenticating with the GitHub API (default: github.token)"
+    required: false
+    default: ${{ github.token }}
 runs:
   using: composite
   steps:
-    - uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
+    - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
       if: ${{ inputs.verify_blob != 'false' }}
-    - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+    - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       with:
         version: ${{ inputs.uv_version }}
+        github-token: ${{ inputs.github_token }}
     - run: |
-        cd $GITHUB_ACTION_PATH \
+        cd "$GITHUB_ACTION_PATH" \
         && ./ct.sh \
-            --verify-blob ${{ inputs.verify_blob }} \
-            --version ${{ inputs.version }} \
-            --yamllint-version ${{ inputs.yamllint_version }} \
-            --yamale-version ${{ inputs.yamale_version }}
+            --verify-blob "$VERIFY_BLOB" \
+            --version "$CHART_TESTING_VERSION" \
+            --yamllint-version "$YAMLLINT_VERSION" \
+            --yamale-version "$YAMALE_VERSION"
       shell: bash
+      env:
+        VERIFY_BLOB: ${{ inputs.verify_blob }}
+        CHART_TESTING_VERSION: ${{ inputs.version }}
+        YAMLLINT_VERSION: ${{ inputs.yamllint_version }}
+        YAMALE_VERSION: ${{ inputs.yamale_version }}

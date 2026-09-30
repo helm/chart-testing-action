@@ -9,6 +9,28 @@ DEFAULT_VERIFY_BLOB=true
 DEFAULT_YAMLLINT_VERSION=1.33.0
 DEFAULT_YAMALE_VERSION=6.0.0
 
+# Set once a download is staged, so cleanup() can remove it on any exit path.
+staging_dir=
+
+cleanup() {
+    if [[ -n "${staging_dir}" ]]; then
+        rm -rf "${staging_dir}"
+    fi
+}
+
+# Version strings are interpolated into filesystem paths and into the
+# $GITHUB_PATH / $GITHUB_ENV files, so restrict them to characters that can
+# neither traverse directories nor add extra lines to those files.
+validate_version() {
+    local flag="$1"
+    local value="$2"
+
+    if [[ ! "${value}" =~ ^[0-9]+(\.[0-9]+)*([-+][A-Za-z0-9.]+)?$ ]]; then
+        echo "ERROR: '${flag}' must be a version number, got: '${value}'" >&2
+        exit 1
+    fi
+}
+
 show_help() {
 cat << EOF
 Usage: $(basename "$0") <options>
@@ -24,7 +46,13 @@ main() {
     local yamllint_version="${DEFAULT_YAMLLINT_VERSION}"
     local yamale_version="${DEFAULT_YAMALE_VERSION}"
 
+    trap cleanup EXIT
+
     parse_command_line "$@"
+
+    validate_version '-v|--version' "${version}"
+    validate_version '--yamllint-version' "${yamllint_version}"
+    validate_version '--yamale-version' "${yamale_version}"
 
     install_chart_testing
 }
@@ -100,32 +128,49 @@ install_chart_testing() {
     local cache_dir="${RUNNER_TOOL_CACHE}/ct/${version}/${arch}"
     local venv_dir="${cache_dir}/venv"
 
-    curl --retry 5 --retry-delay 1 -sSLo ct.tar.gz \
-      "https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz"
-    echo "Installing chart-testing v${version}..."
+    # Only treat the cache as populated when the binary itself is present. An
+    # empty or partially populated directory -- left behind by an earlier run
+    # that failed after mkdir but before extraction -- must never suppress
+    # signature verification.
+    if [[ ! -x "${cache_dir}/ct" ]]; then
+        echo "Installing chart-testing v${version}..."
+        local ct_cert="https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz.pem"
+        local ct_sig="https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz.sig"
 
-    if [[ ! -d "${cache_dir}" ]]; then
-        mkdir -p "${cache_dir}"
+        # Stage everything outside the cache, and publish to ${cache_dir} only
+        # after the download, signature verification and extraction have all
+        # succeeded. This keeps a failed run from leaving anything behind that
+        # a later run could mistake for a verified install.
+        staging_dir="$(mktemp -d)"
+
+        # --fail so an HTTP error is reported as a download failure rather than
+        # being saved as the "tarball" and surfacing later as a bogus
+        # signature-verification error.
+        if ! curl --fail --retry 5 --retry-delay 1 -sSLo "${staging_dir}/ct.tar.gz" \
+          "https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz"; then
+          echo "ERROR: Unable to download chart-testing version: v${version}" >&2
+          exit 1
+        fi
 
         if [[ "${verify_blob}" != "false" ]]; then
-            echo "Verifing blob..."
-            CT_CERT=https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz.pem
-            CT_SIG=https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version#v}_linux_${arch}.tar.gz.sig
-
-            cosign verify-blob --certificate "${CT_CERT}" --signature "${CT_SIG}" \
+            if ! cosign verify-blob --certificate "${ct_cert}" --signature "${ct_sig}" \
               --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
-              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ct.tar.gz
-            retVal=$?
-            if [[ "${retVal}" -ne 0 ]]; then
-              log_error "Unable to validate chart-testing version: v${version}"
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" "${staging_dir}/ct.tar.gz"; then
+              echo "ERROR: Unable to validate chart-testing version: v${version}" >&2
               exit 1
             fi
         else
-            echo "Skipping verifing blob..."
+            echo "Skipping blob verification..."
         fi
 
-        tar -xzf ct.tar.gz -C "${cache_dir}"
-        rm -f ct.tar.gz
+        mkdir -p "${staging_dir}/extracted"
+        tar -xzf "${staging_dir}/ct.tar.gz" -C "${staging_dir}/extracted"
+
+        # Safe because validate_version has already rejected anything that
+        # could make ${cache_dir} point outside ${RUNNER_TOOL_CACHE}.
+        rm -rf "${cache_dir}"
+        mkdir -p "$(dirname "${cache_dir}")"
+        mv "${staging_dir}/extracted" "${cache_dir}"
 
         echo 'Creating virtual Python environment...'
         export UV_LINK_MODE=copy
