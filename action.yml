@@ -52,10 +52,19 @@ runs:
       env:
         LINT_CONFIG: ${{ inputs.lint_config }}
       run: |
+        if [[ "${LINT_CONFIG}" == *[$'\n\r']* ]]; then
+          echo "::error::lint_config must not contain a line break"
+          exit 1
+        fi
         if [[ ! -f "${LINT_CONFIG}" ]]; then
           echo "::error::lint_config file not found: ${LINT_CONFIG}"
           exit 1
         fi
-        echo "CT_LINT_CONF=$(realpath "${LINT_CONFIG}")" >> "${GITHUB_ENV}"
+        lint_conf="$(realpath -- "${LINT_CONFIG}")"
+        if [[ "${lint_conf}" == *[$'\n\r']* ]]; then
+          echo "::error::lint_config must not resolve to a path with a line break"
+          exit 1
+        fi
+        echo "CT_LINT_CONF=${lint_conf}" >> "${GITHUB_ENV}"
         echo "Using custom yamllint config: ${LINT_CONFIG}"
       shell: bash
