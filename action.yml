@@ -12,7 +12,7 @@ inputs:
   version:
     description: "The chart-testing version to install"
     required: false
-    default: '3.14.0'
+    default: '3.15.0'
   yamllint_version:
     description: "The yamllint version to install"
     required: false

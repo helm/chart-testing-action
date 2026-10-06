@@ -42,7 +42,7 @@ setup() {
 
     # A real tarball, so tar and the post-extract steps behave normally.
     mkdir -p "${workdir}/payload/etc"
-    printf '#!/bin/sh\necho "Version: v3.14.0"\n' > "${workdir}/payload/ct"
+    printf '#!/bin/sh\necho "Version: v3.15.0"\n' > "${workdir}/payload/ct"
     chmod +x "${workdir}/payload/ct"
     echo 'schema' > "${workdir}/payload/etc/chart_schema.yaml"
     tar -czf "${workdir}/release.tar.gz" -C "${workdir}/payload" .
@@ -81,7 +81,7 @@ stub_curl_http_error() {
 stub_cosign() {
     cat > "${stubdir}/cosign" <<EOF
 #!/bin/sh
-echo invoked >> "${workdir}/cosign.log"
+echo invoked "\$@" >> "${workdir}/cosign.log"
 exit $1
 EOF
     chmod +x "${stubdir}/cosign"
@@ -139,13 +139,13 @@ test_rejects_hostile_versions() {
     done <<'CASES'
 path traversal|../../../../tmp/evil
 absolute path|/tmp/evil
-command substitution|3.14.0$(id)
-semicolon|3.14.0; id
+command substitution|3.15.0$(id)
+semicolon|3.15.0; id
 CASES
 
     # Newline kept out of the heredoc above, which is line-oriented.
     setup
-    run_ct --version "$(printf '3.14.0\nLD_PRELOAD=/tmp/evil.so')"
+    run_ct --version "$(printf '3.15.0\nLD_PRELOAD=/tmp/evil.so')"
     if [[ ${rc} -eq 0 ]]; then
         fail "rejects embedded newline" "expected non-zero exit, got 0"
     elif grep -q 'LD_PRELOAD' "${GITHUB_ENV}"; then
@@ -160,7 +160,7 @@ CASES
 # leading v must still be stripped and accepted.
 test_accepts_v_prefixed_version() {
     setup
-    run_ct --version v3.14.0
+    run_ct --version v3.15.0
     if [[ ${rc} -ne 0 ]]; then
         fail "accepts v-prefixed version" "exit ${rc}: $(output | tail -1)"
     else
@@ -171,9 +171,9 @@ test_accepts_v_prefixed_version() {
 
 test_accepts_prerelease_version() {
     setup
-    run_ct --version 3.14.0-rc.1
+    run_ct --version 3.15.0-rc.1
     if [[ ${rc} -ne 0 ]] && output | grep -q 'must be a version number'; then
-        fail "accepts prerelease version" "rejected 3.14.0-rc.1"
+        fail "accepts prerelease version" "rejected 3.15.0-rc.1"
     else
         pass "accepts prerelease version"
     fi
@@ -188,8 +188,8 @@ test_accepts_prerelease_version() {
 test_stale_cache_dir_does_not_skip_verification() {
     setup
     # Exactly what a run that died after mkdir but before extraction leaves.
-    mkdir -p "${RUNNER_TOOL_CACHE}/ct/3.14.0/amd64"
-    run_ct --version 3.14.0
+    mkdir -p "${RUNNER_TOOL_CACHE}/ct/3.15.0/amd64"
+    run_ct --version 3.15.0
 
     if ! cosign_invoked; then
         fail "stale cache dir does not skip verification" \
@@ -205,7 +205,7 @@ test_stale_cache_dir_does_not_skip_verification() {
 test_failed_verification_leaves_nothing_reusable() {
     setup
     stub_cosign 1
-    run_ct --version 3.14.0
+    run_ct --version 3.15.0
 
     local leftovers
     leftovers="$(find "${RUNNER_TOOL_CACHE}" -mindepth 1 | wc -l | tr -d ' ')"
@@ -229,7 +229,7 @@ test_failed_verification_leaves_nothing_reusable() {
 test_staging_dir_is_always_cleaned_up() {
     setup
     stub_cosign 1
-    run_ct --version 3.14.0
+    run_ct --version 3.15.0
 
     local leaked
     leaked="$(find "${workdir}/tmp" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
@@ -268,7 +268,7 @@ test_verify_blob_opt_out_is_case_insensitive() {
 test_download_failure_is_distinct_from_verification_failure() {
     setup
     stub_curl_http_error
-    run_ct --version 3.14.0
+    run_ct --version 3.15.0
 
     if [[ ${rc} -eq 0 ]]; then
         fail "download failure is reported as such" "expected non-zero exit, got 0"
@@ -287,16 +287,16 @@ test_download_failure_is_distinct_from_verification_failure() {
 
 test_successful_install() {
     setup
-    run_ct --version 3.14.0
+    run_ct --version 3.15.0
 
-    local ct_bin="${RUNNER_TOOL_CACHE}/ct/3.14.0/amd64/ct"
+    local ct_bin="${RUNNER_TOOL_CACHE}/ct/3.15.0/amd64/ct"
     if [[ ${rc} -ne 0 ]]; then
         fail "successful install" "exit ${rc}: $(output | tail -1)"
     elif ! cosign_invoked; then
         fail "successful install" "cosign was not invoked"
     elif [[ ! -x "${ct_bin}" ]]; then
         fail "successful install" "ct binary missing at ${ct_bin}"
-    elif ! grep -qx "${RUNNER_TOOL_CACHE}/ct/3.14.0/amd64" "${GITHUB_PATH}"; then
+    elif ! grep -qx "${RUNNER_TOOL_CACHE}/ct/3.15.0/amd64" "${GITHUB_PATH}"; then
         fail "successful install" "cache dir was not added to \$GITHUB_PATH"
     elif ! grep -q '^CT_CONFIG_DIR=' "${GITHUB_ENV}"; then
         fail "successful install" "CT_CONFIG_DIR was not exported"
@@ -306,10 +306,30 @@ test_successful_install() {
     teardown
 }
 
+test_verification_method_depends_on_version() {
+    setup
+    run_ct --version 3.15.0
+    if ! grep -q -- '--bundle' "${workdir}/cosign.log"; then
+        fail "v3.15.0 verifies with a Sigstore bundle" "got: $(cat "${workdir}/cosign.log")"
+    else
+        pass "v3.15.0 verifies with a Sigstore bundle"
+    fi
+    teardown
+
+    setup
+    run_ct --version 3.14.0
+    if ! grep -q -- '--certificate .*\.pem --signature .*\.sig' "${workdir}/cosign.log"; then
+        fail "v3.14.0 verifies with certificate and signature" "got: $(cat "${workdir}/cosign.log")"
+    else
+        pass "v3.14.0 verifies with certificate and signature"
+    fi
+    teardown
+}
+
 test_missing_tool_cache_is_an_error() {
     setup
     export RUNNER_TOOL_CACHE="${workdir}/does-not-exist"
-    run_ct --version 3.14.0
+    run_ct --version 3.15.0
     if [[ ${rc} -eq 0 ]]; then
         fail "missing tool cache is an error" "expected non-zero exit, got 0"
     else
@@ -328,6 +348,7 @@ main() {
     test_verify_blob_opt_out_is_case_insensitive
     test_download_failure_is_distinct_from_verification_failure
     test_successful_install
+    test_verification_method_depends_on_version
     test_missing_tool_cache_is_an_error
 
     printf '\n%d passed, %d failed\n' "${passes}" "${failures}"
