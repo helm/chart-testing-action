@@ -152,7 +152,7 @@ install_chart_testing() {
           exit 1
         fi
 
-        if [[ "${verify_blob}" != "false" ]]; then
+        if [[ "${verify_blob,,}" != "false" ]]; then
             if ! cosign verify-blob --certificate "${ct_cert}" --signature "${ct_sig}" \
               --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
               --certificate-oidc-issuer "https://token.actions.githubusercontent.com" "${staging_dir}/ct.tar.gz"; then

@@ -242,6 +242,26 @@ test_staging_dir_is_always_cleaned_up() {
 }
 
 #-----------------------------------------------------------------------------
+# action.yml's `inputs.verify_blob != 'false'` check is case-insensitive, so
+# a differently-cased opt-out (e.g. 'FALSE') must still be honoured here.
+#-----------------------------------------------------------------------------
+
+test_verify_blob_opt_out_is_case_insensitive() {
+    setup
+    run_ct --version 3.14.0 --verify-blob FALSE
+
+    if [[ ${rc} -ne 0 ]]; then
+        fail "verify-blob opt-out is case-insensitive" "exit ${rc}: $(output | tail -1)"
+    elif cosign_invoked; then
+        fail "verify-blob opt-out is case-insensitive" \
+            "cosign was invoked despite --verify-blob FALSE"
+    else
+        pass "verify-blob opt-out is case-insensitive"
+    fi
+    teardown
+}
+
+#-----------------------------------------------------------------------------
 # A download failure must not be reported as a signature problem.
 #-----------------------------------------------------------------------------
 
@@ -305,6 +325,7 @@ main() {
     test_stale_cache_dir_does_not_skip_verification
     test_failed_verification_leaves_nothing_reusable
     test_staging_dir_is_always_cleaned_up
+    test_verify_blob_opt_out_is_case_insensitive
     test_download_failure_is_distinct_from_verification_failure
     test_successful_install
     test_missing_tool_cache_is_an_error
