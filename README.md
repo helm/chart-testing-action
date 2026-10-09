@@ -15,7 +15,7 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `3.14.0`)
+- `version`: The chart-testing version to install (default: `3.15.0`)
 - `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
 - `yamale_version`: The `yamale` version to install (default: `6.0.0`)
 - `lint_config`: Path to a custom yamllint config file. If set, `ct lint` uses it instead of the default `lintconf.yaml` (default: none)

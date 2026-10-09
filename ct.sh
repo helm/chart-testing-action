@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_CHART_TESTING_VERSION=3.14.0
+DEFAULT_CHART_TESTING_VERSION=3.15.0
 DEFAULT_VERIFY_BLOB=true
 DEFAULT_YAMLLINT_VERSION=1.33.0
 DEFAULT_YAMALE_VERSION=6.0.0
@@ -134,8 +134,7 @@ install_chart_testing() {
     # signature verification.
     if [[ ! -x "${cache_dir}/ct" ]]; then
         echo "Installing chart-testing v${version}..."
-        local ct_cert="https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz.pem"
-        local ct_sig="https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz.sig"
+        local ct_url="https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz"
 
         # Stage everything outside the cache, and publish to ${cache_dir} only
         # after the download, signature verification and extraction have all
@@ -147,13 +146,27 @@ install_chart_testing() {
         # being saved as the "tarball" and surfacing later as a bogus
         # signature-verification error.
         if ! curl --fail --retry 5 --retry-delay 1 -sSLo "${staging_dir}/ct.tar.gz" \
-          "https://github.com/helm/chart-testing/releases/download/v${version}/chart-testing_${version}_linux_${arch}.tar.gz"; then
+          "${ct_url}"; then
           echo "ERROR: Unable to download chart-testing version: v${version}" >&2
           exit 1
         fi
 
         if [[ "${verify_blob,,}" != "false" ]]; then
-            if ! cosign verify-blob --certificate "${ct_cert}" --signature "${ct_sig}" \
+            # Releases from v3.15.0 onwards publish a Sigstore bundle; earlier
+            # releases publish a separate certificate and signature.
+            local verify_args
+            if [[ "$(printf '%s\n%s\n' "3.15.0" "${version}" | sort -V | head -n1)" == "3.15.0" ]]; then
+                if ! curl --fail --retry 5 --retry-delay 1 -sSLo "${staging_dir}/ct.tar.gz.sigstore.json" \
+                  "${ct_url}.sigstore.json"; then
+                  echo "ERROR: Unable to download chart-testing version: v${version}" >&2
+                  exit 1
+                fi
+                verify_args=(--bundle "${staging_dir}/ct.tar.gz.sigstore.json")
+            else
+                verify_args=(--certificate "${ct_url}.pem" --signature "${ct_url}.sig")
+            fi
+
+            if ! cosign verify-blob "${verify_args[@]}" \
               --certificate-identity "https://github.com/helm/chart-testing/.github/workflows/release.yaml@refs/heads/main" \
               --certificate-oidc-issuer "https://token.actions.githubusercontent.com" "${staging_dir}/ct.tar.gz"; then
               echo "ERROR: Unable to validate chart-testing version: v${version}" >&2
