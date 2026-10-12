@@ -38,7 +38,7 @@ runs:
   steps:
     - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
       if: ${{ inputs.verify_blob != 'false' }}
-    - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+    - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
       with:
         version: ${{ inputs.uv_version }}
         github-token: ${{ inputs.github_token }}
