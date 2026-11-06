@@ -12,9 +12,16 @@ DEFAULT_YAMALE_VERSION=6.0.0
 # Set once a download is staged, so cleanup() can remove it on any exit path.
 staging_dir=
 
+# Set while ${cache_dir} holds a ct binary but its virtual environment is not
+# yet complete, so cleanup() can remove it if the run stops in between.
+incomplete_cache_dir=
+
 cleanup() {
     if [[ -n "${staging_dir}" ]]; then
         rm -rf "${staging_dir}"
+    fi
+    if [[ -n "${incomplete_cache_dir}" ]]; then
+        rm -rf "${incomplete_cache_dir}"
     fi
 }
 
@@ -183,6 +190,7 @@ install_chart_testing() {
         # could make ${cache_dir} point outside ${RUNNER_TOOL_CACHE}.
         rm -rf "${cache_dir}"
         mkdir -p "$(dirname "${cache_dir}")"
+        incomplete_cache_dir="${cache_dir}"
         mv "${staging_dir}/extracted" "${cache_dir}"
 
         echo 'Creating virtual Python environment...'
@@ -195,6 +203,10 @@ install_chart_testing() {
 
         echo 'Installing Yamale...'
         uv pip install "yamale==${yamale_version}"
+
+        # A ct binary in the cache means "installed", so it may only remain
+        # there once the virtual environment is complete.
+        incomplete_cache_dir=
     fi
 
     # https://github.com/helm/chart-testing-action/issues/62

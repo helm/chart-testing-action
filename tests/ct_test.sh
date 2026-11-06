@@ -242,6 +242,50 @@ test_staging_dir_is_always_cleaned_up() {
 }
 
 #-----------------------------------------------------------------------------
+# The ct binary marks the cache as installed, so a run that fails while
+# setting up the virtual environment must not leave it behind: the next run
+# would skip the install and point VIRTUAL_ENV at a missing environment.
+#-----------------------------------------------------------------------------
+
+stub_uv() {
+    cat > "${stubdir}/uv" <<EOF
+#!/bin/sh
+echo invoked "\$@" >> "${workdir}/uv.log"
+[ "\$1" = pip ] && exit $1
+exit 0
+EOF
+    chmod +x "${stubdir}/uv"
+}
+
+test_failed_venv_setup_leaves_nothing_reusable() {
+    setup
+    stub_uv 1
+    run_ct --version 3.15.0
+
+    if [[ ${rc} -eq 0 ]]; then
+        fail "failed venv setup leaves nothing reusable" "expected non-zero exit, got 0"
+    elif [[ -n "$(find "${RUNNER_TOOL_CACHE}" -name ct -type f)" ]]; then
+        fail "failed venv setup leaves nothing reusable" "ct binary left in the tool cache"
+    else
+        pass "failed venv setup leaves nothing reusable"
+    fi
+
+    # The retry must set up the virtual environment again.
+    stub_uv 0
+    : > "${workdir}/uv.log"
+    run_ct --version 3.15.0
+
+    if [[ ${rc} -ne 0 ]]; then
+        fail "retry after failed venv setup reinstalls" "exit ${rc}: $(output | tail -1)"
+    elif ! grep -q '^invoked venv ' "${workdir}/uv.log"; then
+        fail "retry after failed venv setup reinstalls" "virtual environment was not created"
+    else
+        pass "retry after failed venv setup reinstalls"
+    fi
+    teardown
+}
+
+#-----------------------------------------------------------------------------
 # action.yml's `inputs.verify_blob != 'false'` check is case-insensitive, so
 # a differently-cased opt-out (e.g. 'FALSE') must still be honoured here.
 #-----------------------------------------------------------------------------
@@ -345,6 +389,7 @@ main() {
     test_stale_cache_dir_does_not_skip_verification
     test_failed_verification_leaves_nothing_reusable
     test_staging_dir_is_always_cleaned_up
+    test_failed_venv_setup_leaves_nothing_reusable
     test_verify_blob_opt_out_is_case_insensitive
     test_download_failure_is_distinct_from_verification_failure
     test_successful_install
